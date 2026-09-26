@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Inventario de Vinilos</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<meta name="theme-color" content="#150e09">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Vinilos">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#150e09;--panel:#241809;--panel2:#332418;--wood:#3a2515;--wood2:#4a3018;--accent:#e8a94c;--accent2:#c9784a;--text:#f5e8d8;--muted:#a9876b;--danger:#c0554a;--ring:#e8a94c55;}
+*{box-sizing:border-box;}
+body{margin:0;font-family:'Share Tech Mono',monospace;background:var(--bg);color:var(--text);min-height:100%;overflow-x:hidden;padding-bottom:env(safe-area-inset-bottom,0px);}
+#waves{position:fixed;inset:0;z-index:-1;overflow:hidden;background:radial-gradient(120% 90% at 20% 0%,#231609 0%,var(--bg) 60%);}
+.beam{position:absolute;border-radius:50%;filter:blur(70px);opacity:.25;mix-blend-mode:screen;}
+.b1{width:70vw;height:70vw;left:-20vw;top:-15vw;background:radial-gradient(circle,var(--accent),transparent 70%);animation:d1 42s ease-in-out infinite;}
+.b2{width:60vw;height:60vw;right:-15vw;top:20vh;background:radial-gradient(circle,var(--accent2),transparent 70%);animation:d2 55s ease-in-out infinite;}
+@keyframes d1{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(8vw,10vh) scale(1.15);}}
+@keyframes d2{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(-10vw,-6vh) scale(1.1);}}
+@media (prefers-reduced-motion:reduce){.beam,.estanteria,.discBig,.sonando{animation:none!important;}}
+header{padding:16px 20px 10px;position:sticky;top:env(safe-area-inset-top,0px);display:flex;gap:10px;flex-wrap:wrap;align-items:center;z-index:5;backdrop-filter:blur(10px);background:#150e09cc;border-bottom:1px solid #ffffff10;}
+h1{margin:0;font-family:'Orbitron',sans-serif;font-weight:800;font-size:1.3rem;color:var(--accent);flex:1 1 100%;}
+h1 span{color:var(--muted);font-weight:600;font-size:.85rem;}
+input,select,textarea,button{font-family:inherit;font-size:.9rem;padding:8px 10px;border-radius:8px;border:1px solid #ffffff22;background:#1c130c;color:var(--text);outline:none;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--ring);}
+#buscador{flex:1;min-width:150px;}
+.iconBtn{cursor:pointer;background:#1c130c;border:1px solid #ffffff22;color:var(--accent);}
+.iconBtn:hover{border-color:var(--accent);}
+.filtros{display:flex;gap:6px;padding:10px 20px 0;flex-wrap:wrap;align-items:center;}
+.pillgroup{display:flex;gap:4px;background:#1c130c;border-radius:20px;padding:3px;border:1px solid #ffffff1a;}
+.pill{padding:5px 12px;border-radius:16px;cursor:pointer;font-size:.78rem;color:var(--muted);}
+.pill.active{background:var(--accent2);color:#1c130c;font-weight:700;}
+#estanterias{padding:10px 0 110px;}
+.estanteria{margin:26px 20px 0;opacity:0;transform:translateY(16px);animation:subir .55s ease forwards;}
+@keyframes subir{to{opacity:1;transform:translateY(0);}}
+.estHeader{display:flex;align-items:baseline;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+.estHeader h3{font-family:'Orbitron',sans-serif;color:var(--accent);margin:0;font-size:1.05rem;cursor:pointer;}
+.estDesc{color:var(--muted);font-size:.76rem;flex:1;}
+.estHeader select{padding:4px 6px;font-size:.72rem;}
+.estBtns button{background:transparent;border:1px solid #ffffff22;padding:4px 9px;font-size:.72rem;border-radius:6px;cursor:pointer;color:var(--muted);margin-left:4px;}
+.carrusel{position:relative;}
+.tabla-madera{height:10px;background:linear-gradient(180deg,var(--wood2),var(--wood));border-radius:0 0 6px 6px;box-shadow:0 4px 8px #0006;margin-top:-4px;}
+.fila{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 4px 16px;scrollbar-width:thin;}
+.fila::-webkit-scrollbar{height:6px;}
+.fila::-webkit-scrollbar-thumb{background:#ffffff22;border-radius:4px;}
+.navBtn{position:absolute;top:34%;width:32px;height:32px;border-radius:50%;background:#1c130cee;border:1px solid #ffffff2a;color:var(--accent);cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;}
+.navL{left:-4px;} .navR{right:-4px;}
+.card{background:var(--panel);border-radius:12px;padding:9px;cursor:grab;text-align:left;border:1px solid #ffffff12;transition:transform .15s,border-color .15s,opacity .15s;position:relative;width:148px;flex:0 0 148px;scroll-snap-align:start;}
+.card:hover{transform:translateY(-5px) rotate(-1deg);border-color:var(--ring);}
+.card.dragging{opacity:.3;cursor:grabbing;}
+.card.drag-over{outline:2px dashed var(--accent);}
+.art{position:relative;width:100%;aspect-ratio:1;border-radius:8px;overflow:hidden;background:#0d0906;}
+.art img{width:100%;height:100%;object-fit:cover;display:block;}
+.art .ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--muted);}
+.disc{position:absolute;right:-14%;bottom:-14%;width:52%;aspect-ratio:1;border-radius:50%;background:repeating-radial-gradient(circle,#0b0703 0 3px,#171009 3px 6px);box-shadow:0 4px 14px #000a;transition:transform .2s;}
+.card:hover .disc{transform:translate(4px,-4px);}
+.disc::after{content:'';position:absolute;inset:38%;border-radius:50%;background:var(--vc,var(--accent));}
+.t{font-weight:700;font-size:.85rem;margin-top:8px;line-height:1.2;}
+.a{font-size:.76rem;color:var(--muted);margin-top:2px;}
+.tag{font-size:.66rem;padding:2px 7px;border-radius:8px;background:#ffffff10;color:var(--muted);display:inline-block;margin-top:5px;margin-right:4px;}
+.tag.sonando{background:var(--accent);color:#1c130c;font-weight:700;animation:pulso 1.6s ease-in-out infinite;}
+@keyframes pulso{0%,100%{opacity:1;}50%{opacity:.5;}}
+.nuevaEst{background:transparent;border:1.5px dashed #ffffff2a;border-radius:12px;width:148px;flex:0 0 148px;display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;aspect-ratio:1;}
+.nuevaEst:hover{border-color:var(--accent);color:var(--accent);}
+.fab{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));right:20px;width:58px;height:58px;border-radius:50%;background:var(--accent);color:#1c130c;font-size:1.7rem;border:none;cursor:pointer;box-shadow:0 4px 16px #000a;z-index:6;}
+.overlay{display:none;position:fixed;inset:0;background:#0a0603dd;align-items:center;justify-content:center;padding:16px;z-index:10;backdrop-filter:blur(4px);}
+.overlay.show{display:flex;}
+.overlay .box{background:var(--panel2);padding:22px;border-radius:14px;max-width:440px;width:100%;max-height:90vh;overflow:auto;border:1px solid #ffffff18;animation:pop .2s ease;}
+@keyframes pop{from{transform:scale(.94);opacity:0;}to{transform:scale(1);opacity:1;}}
+.box h2{font-family:'Orbitron',sans-serif;color:var(--accent);margin:0 0 4px;font-size:1.1rem;}
+.box label{display:block;margin-top:12px;font-size:.76rem;color:var(--muted);}
+.box input,.box select,.box textarea{width:100%;margin-top:5px;}
+.row{display:flex;gap:10px;}
+.row>*{flex:1;}
+.actions{display:flex;gap:8px;margin-top:20px;}
+.actions button{flex:1;cursor:pointer;}
+#btnDanger{background:var(--danger);border-color:var(--danger);color:#fff;display:none;}
+#btnGuardar,#btnGuardarEst{background:var(--accent);color:#1c130c;font-weight:700;}
+.stars{font-size:1.3rem;letter-spacing:4px;margin-top:6px;}
+.stars span{cursor:pointer;}
+.fichaArt{width:100%;max-width:250px;margin:6px auto 0;position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#0d0906;}
+.fichaArt img{width:100%;height:100%;object-fit:cover;}
+.discBig{position:absolute;right:-16%;bottom:-16%;width:58%;aspect-ratio:1;border-radius:50%;background:repeating-radial-gradient(circle,#0b0703 0 3px,#171009 3px 6px);box-shadow:0 6px 20px #000a;animation:girar 24s linear infinite;}
+.discBig::after{content:'';position:absolute;inset:38%;border-radius:50%;background:var(--vc,var(--accent));}
+.discBig.reproduciendo{animation:girar 2.8s linear infinite;}
+@keyframes girar{to{transform:rotate(360deg);}}
+.audioBox{margin-top:14px;text-align:center;}
+.audioBox button,.ytBtn{background:#1c130c;border:1px solid #ffffff22;color:var(--accent);padding:7px 12px;font-size:.8rem;border-radius:8px;cursor:pointer;margin:0 4px;display:inline-block;text-decoration:none;}
+#fichaAudio{width:100%;margin-top:8px;}
+#zoomBg{cursor:zoom-out;}
+#toast{display:none;position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:#1c130c;border:1px solid var(--accent);padding:10px 16px;border-radius:10px;z-index:20;font-size:.8rem;gap:12px;align-items:center;box-shadow:0 4px 16px #000a;}
+#toast button{background:var(--accent);color:#1c130c;font-weight:700;padding:5px 12px;cursor:pointer;}
+.fichaTitulo{font-family:'Orbitron',sans-serif;text-align:center;margin-top:16px;font-size:1.15rem;color:var(--accent);}
+.fichaArtista{text-align:center;color:var(--muted);font-size:.85rem;}
+.fichaTags{text-align:center;margin-top:8px;}
+.fichaDato{font-size:.82rem;margin-top:8px;color:var(--text);}
+.fichaNotas{font-size:.8rem;margin-top:8px;color:var(--muted);font-style:italic;}
+.fichaTracks{font-size:.8rem;margin-top:8px;padding-left:18px;color:var(--text);}
+.empty{padding:40px 20px;text-align:center;color:var(--muted);}
+footer{padding:10px 20px 90px;color:var(--muted);font-size:.7rem;text-align:center;}
+table{width:100%;border-collapse:collapse;font-size:.82rem;margin:14px 20px;max-width:calc(100% - 40px);}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid #ffffff12;}
+th{color:var(--accent);cursor:pointer;font-family:'Orbitron',sans-serif;font-size:.72rem;white-space:nowrap;}
+tbody tr{cursor:pointer;}
+tbody tr:hover{background:#ffffff08;}
+#tablaWrap{display:none;padding-bottom:110px;overflow-x:auto;}
+.statSection{margin:22px 20px;}
+.statSection h4{font-family:'Orbitron',sans-serif;color:var(--accent);font-size:.88rem;margin:0 0 12px;}
+.statGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:0 20px 8px;}
+.statCard{background:var(--panel);border:1px solid #ffffff12;border-radius:12px;padding:14px;}
+.statCard .num{font-family:'Orbitron',sans-serif;font-size:1.5rem;color:var(--accent);}
+.statCard .lbl{font-size:.74rem;color:var(--muted);margin-top:2px;}
+.barRow{display:flex;align-items:center;gap:8px;margin:7px 0;font-size:.8rem;}
+.barLabel{width:120px;flex:0 0 120px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.barTrack{flex:1;background:#ffffff10;border-radius:6px;height:14px;overflow:hidden;}
+.barFill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:6px;}
+.barCount{width:34px;text-align:right;color:var(--text);font-size:.74rem;}
+#wrappedBg .box{max-width:380px;text-align:center;background:linear-gradient(160deg,#2a1c12,#1c130c);}
+.wSlide{display:none;min-height:280px;flex-direction:column;justify-content:center;align-items:center;padding:10px 4px;}
+.wSlide.show{display:flex;}
+.wSlide .wNum{font-family:'Orbitron',sans-serif;font-size:2.6rem;color:var(--accent);}
+.wSlide .wTitle{font-family:'Orbitron',sans-serif;font-size:1.1rem;color:var(--accent);margin-bottom:10px;}
+.wSlide .wTxt{font-size:.92rem;color:var(--text);margin-top:6px;line-height:1.4;}
+.wDots{display:flex;gap:6px;justify-content:center;margin-top:14px;}
+.wDots span{width:7px;height:7px;border-radius:50%;background:#ffffff2a;}
+.wDots span.on{background:var(--accent);}
+.wNav{display:flex;gap:8px;margin-top:16px;}
+.wNav button{flex:1;cursor:pointer;}
+</style>
+</head>
+<body>
+<div id="waves"><div class="beam b1"></div><div class="beam b2"></div></div>
+<header>
+<h1>📀 Inventario de Vinilos <span id="totalTop"></span></h1>
+<input id="buscador" placeholder="Buscar título, artista, género...">
+<select id="filtroGenero"><option value="">Todos los géneros</option></select>
+<button class="iconBtn" onclick="sorprendeme()" title="Sorpréndeme">🎲</button>
+<button class="iconBtn" onclick="abrirStats()">📊</button>
+<button class="iconBtn" onclick="abrirWrapped(true)" title="Resumen anual">🎁</button>
+<button class="iconBtn" onclick="exportarJSON()">⬇️</button>
+<button class="iconBtn" onclick="document.getElementById('importFile').click()">⬆️</button>
+<input type="file" id="importFile" accept=".json,application/json" style="display:none">
+<button class="iconBtn" onclick="abrirEstModal()">＋ Estantería</button>
+<button class="iconBtn" onclick="cargarDemo()" title="Cargar colección de ejemplo">🧪</button>
+</header>
+<div class="filtros">
+<div class="pillgroup" id="pillEstado">
+<div class="pill active" data-v="todos">Todos</div>
+<div class="pill" data-v="tengo">Tengo</div>
+<div class="pill" data-v="quiero">Quiero</div>
+</div>
+<div class="pillgroup" id="pillVista">
+<div class="pill active" data-v="estanterias">🗄️ Estanterías</div>
+<div class="pill" data-v="tabla">📋 Tabla</div>
+<div class="pill" data-v="detalle">📈 Detalle</div>
+</div>
+</div>
+<div id="wrappedBanner" style="display:none;margin:10px 20px 0;padding:10px 14px;background:linear-gradient(90deg,var(--accent2),var(--accent));color:#1c130c;border-radius:10px;font-size:.82rem;display:flex;align-items:center;gap:10px;">
+<span style="flex:1;font-weight:700;">🎁 Tu resumen anual ya está listo</span>
+<button onclick="abrirWrapped()" style="background:#1c130c;color:var(--accent);font-weight:700;">Ver</button>
+<button onclick="document.getElementById('wrappedBanner').style.display='none'" style="background:transparent;border:none;color:#1c130c;font-weight:700;cursor:pointer;">✕</button>
+</div>
+<div id="estanterias"></div>
+<div id="tablaWrap"><table id="tablaVista">
+<thead><tr>
+<th onclick="ordenarTabla('titulo')">Título</th><th onclick="ordenarTabla('artista')">Artista</th>
+<th onclick="ordenarTabla('genero')">Género</th><th onclick="ordenarTabla('anio')">Año</th>
+<th onclick="ordenarTabla('formato')">Formato</th><th onclick="ordenarTabla('estado_posesion')">Estado</th>
+<th onclick="ordenarTabla('precio')">Precio</th>
+</tr></thead><tbody></tbody>
+</table></div>
+<div id="detalleWrap" style="display:none;padding-bottom:110px;"></div>
+<footer>Los datos se guardan en este navegador. Arrastra un disco para reordenarlo o moverlo de estantería.</footer>
+<button class="fab" onclick="abrirModal()">+</button>
+
+<div class="overlay" id="fichaBg">
+<div class="box" id="fichaBox">
+<div class="fichaArt" id="fichaArt"></div>
+<div class="fichaTitulo" id="fichaTitulo"></div>
+<div class="fichaArtista" id="fichaArtistaEl"></div>
+<div class="fichaTags" id="fichaTags"></div>
+<div id="fichaExtra"></div>
+<div class="audioBox" id="fichaAudioBox">
+<button onclick="document.getElementById('audioFile').click()">🎧 Reproducir audio local</button>
+<a class="ytBtn" id="fichaYoutube" href="#" target="_blank" rel="noopener" style="display:none;">▶ Ver en YouTube</a>
+<input type="file" id="audioFile" accept="audio/*" style="display:none">
+<audio id="fichaAudio" controls style="display:none;"></audio>
+</div>
+<div class="actions">
+<button onclick="cerrarFicha()">Cerrar</button>
+<button id="fichaEditar" style="background:var(--accent);color:#1c130c;font-weight:700;">✏️ Editar</button>
+</div>
+</div>
+</div>
+
+<div class="overlay" id="zoomBg" onclick="this.classList.remove('show')"><img id="zoomImg" style="max-width:92vw;max-height:92vh;border-radius:8px;"></div>
+<div id="toast"><span id="toastMsg"></span><button onclick="deshacerBorrado()">Deshacer</button></div>
+
+<div class="overlay" id="wrappedBg">
+<div class="box">
+<div id="wSlides"></div>
+<div class="wDots" id="wDots"></div>
+<div class="wNav">
+<button onclick="wCambiar(-1)">‹ Antes</button>
+<button onclick="cerrarWrapped()" style="background:var(--accent);color:#1c130c;font-weight:700;">Cerrar</button>
+<button onclick="wCambiar(1)">Después ›</button>
+</div>
+</div>
+</div>
+
+<div class="overlay" id="statsBg">
+<div class="box">
+<h2>📊 Estadísticas</h2>
+<div id="statsBody"></div>
+<div class="actions"><button onclick="document.getElementById('statsBg').classList.remove('show')">Cerrar</button><button onclick="verDetalle()" style="background:var(--accent);color:#1c130c;font-weight:700;">🔎 Ver detalle</button></div>
+</div>
+</div>
+
+<div class="overlay" id="modalBg">
+<div class="box">
+<h2 id="modalTitulo">Añadir disco</h2>
+<input type="hidden" id="f_id">
+<label>Título</label><input id="f_titulo">
+<label>Artista / Grupo</label><input id="f_artista" list="listaArtistas" placeholder="Empieza a escribir...">
+<datalist id="listaArtistas"></datalist>
+<div class="row">
+<div><label>Género</label><select id="f_genero" onchange="toggleGeneroOtro()"></select>
+<input id="f_genero_otro" placeholder="Escribe el género" style="display:none;margin-top:6px;"></div>
+<div><label>Año</label><select id="f_anio"></select></div>
+</div>
+<div class="row">
+<div><label>Formato</label><select id="f_formato"><option>LP</option><option>EP</option><option>Single</option><option>Box Set</option><option>Maxi</option><option>Otro</option></select></div>
+<div><label>Estado</label><select id="f_estado"><option value="tengo">Lo tengo</option><option value="quiero">Lo quiero</option></select></div>
+</div>
+<div class="row">
+<div><label>Condición</label><select id="f_condicion"><option>Mint (M)</option><option>Near Mint (NM)</option><option selected>Muy bueno+ (VG+)</option><option>Muy bueno (VG)</option><option>Bueno (G)</option><option>Aceptable</option></select></div>
+<div><label>Precio (€)</label><input id="f_precio" type="number" step="0.01"></div>
+</div>
+<div class="row">
+<div><label>Estantería</label><select id="f_estanteria"></select></div>
+<div><label>Color del vinilo</label>
+<select id="f_color"><option value="#1c1c1c">Negro clásico</option><option value="#c0392b">Rojo</option><option value="#2f6fd1">Azul</option><option value="#e8e8e8">Blanco</option><option value="#f4d35e">Dorado</option><option value="#3fae6b">Verde / transparente</option><option value="#8e44ad">Splatter púrpura</option></select></div>
+</div>
+<label>Valoración</label>
+<div class="stars" id="ratingPicker"><span data-n="1">☆</span><span data-n="2">☆</span><span data-n="3">☆</span><span data-n="4">☆</span><span data-n="5">☆</span></div>
+<input type="hidden" id="f_rating" value="0">
+<label style="display:flex;align-items:center;gap:8px;margin-top:14px;"><input type="checkbox" id="f_escuchando" style="width:auto;margin:0;"> Marcar como "sonando ahora"</label>
+<label>Fecha de compra</label><input id="f_fecha" type="date">
+<label>Enlace de YouTube (opcional)</label><input id="f_youtube" type="url" placeholder="https://youtube.com/...">
+<label>Etiquetas propias (separadas por coma)</label><input id="f_tags" placeholder="para fiesta, edición limitada...">
+<label>Tracklist (opcional, una canción por línea)</label><textarea id="f_tracklist" rows="3"></textarea>
+<label>Notas</label><textarea id="f_notas" rows="2"></textarea>
+<label>Portada</label><input id="f_portada" type="file" accept="image/*">
+<img id="f_preview" style="max-width:100px;margin-top:8px;display:none;border-radius:6px;">
+<div class="actions">
+<button id="btnDanger" onclick="borrarDisco()">Eliminar</button>
+<button onclick="cerrarModal()">Cancelar</button>
+<button id="btnGuardar" onclick="guardarDisco()">Guardar</button>
+</div>
+</div>
+</div>
+
+<div class="overlay" id="estBg">
+<div class="box">
+<h2 id="estTitulo">Nueva estantería</h2>
+<input type="hidden" id="e_id">
+<label>Nombre</label><input id="e_nombre" placeholder="Ej. Favoritos, Salón, Jazz de noche...">
+<label>Descripción (opcional)</label><textarea id="e_desc" rows="2" placeholder="Una frase sobre esta balda..."></textarea>
+<div class="actions">
+<button id="btnDangerEst" onclick="borrarEstanteria()" style="background:var(--danger);border-color:var(--danger);color:#fff;display:none;">Eliminar</button>
+<button onclick="cerrarEstModal()">Cancelar</button>
+<button id="btnGuardarEst" onclick="guardarEstanteria()">Guardar</button>
+</div>
+</div>
+</div>
+
+<script>
+const DB_KEY='vinilos_db';
+let db = JSON.parse(localStorage.getItem(DB_KEY)||'null') || {discos:[],estanterias:[]};
+let portadaBase64=null, filtroEstado='todos', vista='estanterias', sortCol='titulo', sortDir=1;
+const GENEROS_ESTANDAR=['Rock','Pop','Jazz','Blues','Soul','Funk','Disco','Reggae','Hip Hop','Electrónica','Clásica','Ópera','Country','Folk','Metal','Punk','Latin / Salsa','R&B','Gospel','Flamenco','Bandas Sonoras','Experimental'];
+
+function datosDemo(){
+  const e1='demo-e1', e2='demo-e2', e3='demo-e3', e4='demo-e4';
+  const base={color_vinilo:'#1c1c1c',rating:0,escuchando:false,fecha_compra:'',youtube:'',tags:[],tracklist:'',notas:'',portada:null,fecha_alta:new Date().toISOString(),condicion:'Muy bueno+ (VG+)',formato:'LP',estado_posesion:'tengo',precio:null};
+  const d=(o)=>({id:crypto.randomUUID(), ...base, ...o});
+  return {
+    estanterias:[
+      {id:e1,nombre:'Clásicos del Rock',descripcion:'Los de siempre'},
+      {id:e2,nombre:'Pop y Synth',descripcion:'Para animar la sala'},
+      {id:e3,nombre:'Jazz y Soul',descripcion:'Domingos por la tarde'},
+      {id:e4,nombre:'Electrónica',descripcion:'Descubrimientos recientes'},
+    ],
+    discos:[
+      d({titulo:'The Dark Side Of The Moon',artista:'Pink Floyd',genero:'Rock',anio:1973,decada:'1970s',estanteria_id:e1,rating:5,precio:18}),
+      d({titulo:'Rumours',artista:'Fleetwood Mac',genero:'Rock',anio:1977,decada:'1970s',estanteria_id:e1,rating:4,precio:15}),
+      d({titulo:'Nevermind',artista:'Nirvana',genero:'Rock',anio:1991,decada:'1990s',estanteria_id:e1,rating:4,precio:20}),
+      d({titulo:'Abbey Road',artista:'The Beatles',genero:'Rock',anio:1969,decada:'1960s',estanteria_id:e1,rating:5,precio:22}),
+      d({titulo:'Appetite For Destruction',artista:"Guns N' Roses",genero:'Rock',anio:1987,decada:'1980s',estanteria_id:e1,estado_posesion:'quiero'}),
+      d({titulo:'Thriller',artista:'Michael Jackson',genero:'Pop',anio:1982,decada:'1980s',estanteria_id:e2,rating:5,precio:19,color_vinilo:'#e8e8e8'}),
+      d({titulo:'1989',artista:'Taylor Swift',genero:'Pop',anio:2014,decada:'2010s',estanteria_id:e2,rating:4,precio:24,color_vinilo:'#c0392b'}),
+      d({titulo:'Violator',artista:'Depeche Mode',genero:'Electrónica',anio:1990,decada:'1990s',estanteria_id:e2,rating:5,precio:17}),
+      d({titulo:'The Miseducation Of Lauryn Hill',artista:'Lauryn Hill',genero:'R&B',anio:1998,decada:'1990s',estanteria_id:e3,rating:5,precio:16}),
+      d({titulo:'Kind Of Blue',artista:'Miles Davis',genero:'Jazz',anio:1959,decada:'1950s',estanteria_id:e3,rating:5,precio:21}),
+      d({titulo:"What's Going On",artista:'Marvin Gaye',genero:'Soul',anio:1971,decada:'1970s',estanteria_id:e3,rating:4,precio:18}),
+      d({titulo:'Blue Train',artista:'John Coltrane',genero:'Jazz',anio:1957,decada:'1950s',estanteria_id:e3,estado_posesion:'quiero'}),
+      d({titulo:'Discovery',artista:'Daft Punk',genero:'Electrónica',anio:2001,decada:'2000s',estanteria_id:e4,rating:5,precio:23,color_vinilo:'#f4d35e'}),
+      d({titulo:'Selected Ambient Works 85-92',artista:'Aphex Twin',genero:'Electrónica',anio:1992,decada:'1990s',estanteria_id:e4,rating:4,precio:26}),
+      d({titulo:'Currents',artista:'Tame Impala',genero:'Rock',anio:2015,decada:'2010s',estanteria_id:e4,rating:4,precio:22,escuchando:true}),
+      d({titulo:'In Rainbows',artista:'Radiohead',genero:'Rock',anio:2007,decada:'2000s',estanteria_id:e4,estado_posesion:'quiero'}),
+    ]
+  };
+}
+function cargarDemo(){
+  if(!confirm('Esto sustituirá tu colección actual por una colección de ejemplo (16 discos), pensada para probar la app. ¿Continuar?')) return;
+  db=datosDemo();
+  migrar(); guardarDB(); renderTodo();
+}
+
+function guardarDB(){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+function decadaDe(anio){ return anio ? (Math.floor(anio/10)*10)+'s' : 'Sin año'; }
+function nombreEst(id){ const e=db.estanterias.find(x=>x.id===id); return e?e.nombre:''; }
+
+function migrar(){
+  if(!db.estanterias) db.estanterias=[];
+  if(db.estanterias.length===0){
+    const def={id:crypto.randomUUID(), nombre:'Mi colección', descripcion:''};
+    db.estanterias.push(def);
+    db.discos.forEach(d=>{ d.estanteria_id=def.id; });
+    guardarDB();
+  } else {
+    const ids=new Set(db.estanterias.map(e=>e.id));
+    let changed=false;
+    db.discos.forEach(d=>{ if(!d.estanteria_id || !ids.has(d.estanteria_id)){ d.estanteria_id=db.estanterias[0].id; changed=true; } });
+    if(changed) guardarDB();
+  }
+}
+
+function coincide(d,q){
+  if(filtroEstado!=='todos' && d.estado_posesion!==filtroEstado) return false;
+  const gf=document.getElementById('filtroGenero').value;
+  if(gf && (d.genero||'')!==gf) return false;
+  if(!q) return true;
+  q=q.toLowerCase();
+  return (d.titulo||'').toLowerCase().includes(q) || (d.artista||'').toLowerCase().includes(q) || (d.genero||'').toLowerCase().includes(q);
+}
+function renderTodo(){ renderEstanterias(); if(vista==='tabla') renderTabla(); if(vista==='detalle') renderDetalle(); }
+
+function renderEstanterias(){
+  document.getElementById('totalTop').textContent = db.discos.length ? '· '+db.discos.length : '';
+  const generos=[...new Set(db.discos.map(d=>d.genero).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+  const gsel=document.getElementById('filtroGenero'), gval=gsel.value;
+  gsel.innerHTML='<option value="">Todos los géneros</option>'+generos.map(g=>`<option${g===gval?' selected':''}>${g}</option>`).join('');
+  const q=document.getElementById('buscador').value;
+  const cont=document.getElementById('estanterias');
+  cont.innerHTML='';
+  db.estanterias.forEach((est,i)=>{
+    let discos=db.discos.filter(d=>d.estanteria_id===est.id && coincide(d,q));
+    if(q || filtroEstado!=='todos' || gsel.value){ if(discos.length===0) return; }
+    if(est.orden==='anio') discos=[...discos].sort((a,b)=>(a.anio||0)-(b.anio||0));
+    else if(est.orden==='titulo') discos=[...discos].sort((a,b)=>(a.titulo||'').localeCompare(b.titulo||'','es'));
+    const manual = !est.orden || est.orden==='manual';
+    const sec=document.createElement('div');
+    sec.className='estanteria'; sec.style.animationDelay=(i*70)+'ms';
+    sec.innerHTML=`<div class="estHeader"><h3 onclick="abrirEstModal('${est.id}')">${est.nombre}</h3><div class="estDesc">${est.descripcion||''}</div>
+      <select onchange="setOrdenEst('${est.id}',this.value)">
+        <option value="manual"${manual?' selected':''}>Orden manual</option>
+        <option value="anio"${est.orden==='anio'?' selected':''}>Por año</option>
+        <option value="titulo"${est.orden==='titulo'?' selected':''}>Por título</option>
+      </select>
+      <div class="estBtns"><button onclick="abrirEstModal('${est.id}')">✏️</button></div></div>
+      <div class="carrusel"><button class="navBtn navL" onclick="mover('${est.id}',-1)">‹</button>
+      <div class="fila" id="fila-${est.id}"></div>
+      <button class="navBtn navR" onclick="mover('${est.id}',1)">›</button></div><div class="tabla-madera"></div>`;
+    cont.appendChild(sec);
+    const fila=sec.querySelector('.fila');
+    fila.ondragover=e=>e.preventDefault();
+    fila.ondrop=e=>{ e.preventDefault(); const id=e.dataTransfer.getData('text/plain'); reordenar(id,null,est.id); };
+    if(discos.length===0){ fila.innerHTML='<div class="empty" style="padding:20px;">Arrastra aquí un disco, o añade uno nuevo.</div>'; }
+    discos.forEach(d=>{
+      const c=document.createElement('div');
+      c.className='card';
+      c.style.setProperty('--vc', d.color_vinilo||'');
+      c.draggable=manual;
+      c.innerHTML=`<div class="art">${d.portada?`<img src="${d.portada}">`:'<div class="ph">💿</div>'}<div class="disc"></div></div>
+        <div class="t">${d.titulo}</div><div class="a">${d.artista||'—'}</div>
+        ${d.escuchando?'<span class="tag sonando">▶ Sonando</span>':''}`;
+      c.onclick=()=>abrirFicha(d.id);
+      c.ondragstart=e=>{ e.dataTransfer.setData('text/plain', d.id); setTimeout(()=>c.classList.add('dragging'),0); };
+      c.ondragend=()=>c.classList.remove('dragging');
+      c.ondragover=e=>{ e.preventDefault(); c.classList.add('drag-over'); };
+      c.ondragleave=()=>c.classList.remove('drag-over');
+      c.ondrop=e=>{ e.preventDefault(); c.classList.remove('drag-over'); const id=e.dataTransfer.getData('text/plain'); if(id!==d.id) reordenar(id,d.id,est.id); };
+      fila.appendChild(c);
+    });
+    const nuevo=document.createElement('div');
+    nuevo.className='nuevaEst'; nuevo.textContent='+ disco';
+    nuevo.onclick=()=>abrirModal(null,est.id);
+    fila.appendChild(nuevo);
+    setTimeout(()=>{ const btns=sec.querySelectorAll('.navBtn'); const show=fila.scrollWidth>fila.clientWidth+4; btns.forEach(b=>b.style.display=show?'flex':'none'); },0);
+  });
+  const addSec=document.createElement('div');
+  addSec.style.margin='26px 20px 0';
+  addSec.innerHTML=`<div class="nuevaEst" style="width:100%;flex:none;border-radius:12px;padding:14px;" onclick="abrirEstModal()">＋ Crear nueva estantería</div>`;
+  cont.appendChild(addSec);
+  const artistas=[...new Set(db.discos.map(d=>d.artista).filter(Boolean))].sort();
+  document.getElementById('listaArtistas').innerHTML = artistas.map(a=>`<option value="${a}">`).join('');
+}
+function mover(estId,dir){ document.getElementById('fila-'+estId).scrollBy({left:dir*320,behavior:'smooth'}); }
+function setOrdenEst(id,val){ const e=db.estanterias.find(x=>x.id===id); e.orden=val; guardarDB(); renderEstanterias(); }
+
+function reordenar(draggedId,targetId,estId){
+  const idx=db.discos.findIndex(x=>x.id===draggedId);
+  if(idx===-1) return;
+  const [item]=db.discos.splice(idx,1);
+  item.estanteria_id=estId;
+  if(targetId){ const t=db.discos.findIndex(x=>x.id===targetId); db.discos.splice(t,0,item); }
+  else db.discos.push(item);
+  guardarDB(); renderTodo();
+}
+
+function ordenarTabla(col){ if(sortCol===col) sortDir*=-1; else { sortCol=col; sortDir=1; } renderTabla(); }
+function renderTabla(){
+  const q=document.getElementById('buscador').value;
+  let filas=db.discos.filter(d=>coincide(d,q));
+  filas.sort((a,b)=>{
+    let va=a[sortCol], vb=b[sortCol];
+    va = va==null? '' : va; vb = vb==null? '' : vb;
+    if(typeof va==='string') return va.localeCompare(vb,'es')*sortDir;
+    return (va-vb)*sortDir;
+  });
+  const tbody=document.querySelector('#tablaVista tbody');
+  tbody.innerHTML='';
+  if(filas.length===0){ tbody.innerHTML='<tr><td colspan="7" class="empty">Sin resultados.</td></tr>'; return; }
+  filas.forEach(d=>{
+    const tr=document.createElement('tr');
+    tr.onclick=()=>abrirFicha(d.id);
+    tr.innerHTML=`<td>${d.titulo}</td><td>${d.artista||''}</td><td>${d.genero||''}</td><td>${d.anio||''}</td><td>${d.formato}</td><td>${d.estado_posesion==='quiero'?'Quiero':'Tengo'}</td><td>${d.precio?Number(d.precio).toFixed(2)+' €':''}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+document.getElementById('buscador').oninput=renderTodo;
+document.getElementById('filtroGenero').onchange=renderTodo;
+document.querySelectorAll('#pillEstado .pill').forEach(p=>{
+  p.onclick=()=>{ document.querySelectorAll('#pillEstado .pill').forEach(x=>x.classList.remove('active')); p.classList.add('active'); filtroEstado=p.dataset.v; renderTodo(); };
+});
+document.querySelectorAll('#pillVista .pill').forEach(p=>{
+  p.onclick=()=>{ document.querySelectorAll('#pillVista .pill').forEach(x=>x.classList.remove('active')); p.classList.add('active'); vista=p.dataset.v;
+    document.getElementById('estanterias').style.display = vista==='estanterias'?'block':'none';
+    document.getElementById('tablaWrap').style.display = vista==='tabla'?'block':'none';
+    document.getElementById('detalleWrap').style.display = vista==='detalle'?'block':'none';
+    renderTodo();
+  };
+});
+
+function poblarGenero(sel){
+  const usados=[...new Set(db.discos.map(d=>d.genero).filter(Boolean))];
+  const todos=[...new Set([...GENEROS_ESTANDAR,...usados])].sort((a,b)=>a.localeCompare(b,'es'));
+  const el=document.getElementById('f_genero');
+  el.innerHTML='<option value="">— Selecciona —</option>'+todos.map(g=>`<option>${g}</option>`).join('')+'<option value="__otro__">+ Otro…</option>';
+  const otro=document.getElementById('f_genero_otro');
+  if(sel && !todos.includes(sel)){ el.value='__otro__'; otro.style.display='block'; otro.value=sel; }
+  else { el.value=sel||''; otro.style.display='none'; otro.value=''; }
+}
+function toggleGeneroOtro(){
+  const otro=document.getElementById('f_genero_otro');
+  otro.style.display=document.getElementById('f_genero').value==='__otro__'?'block':'none';
+  if(otro.style.display==='block') otro.focus();
+}
+function poblarAnio(sel){
+  const el=document.getElementById('f_anio'), actual=new Date().getFullYear();
+  let o='<option value="">Desconocido</option>';
+  for(let y=actual;y>=1900;y--){ o+=`<option${y===sel?' selected':''}>${y}</option>`; }
+  el.innerHTML=o;
+}
+function poblarEstanteriaSelect(sel){
+  const el=document.getElementById('f_estanteria');
+  el.innerHTML=db.estanterias.map(e=>`<option value="${e.id}"${e.id===sel?' selected':''}>${e.nombre}</option>`).join('');
+}
+document.querySelectorAll('#ratingPicker span').forEach(s=>{ s.onclick=()=>setRating(parseInt(s.dataset.n)); });
+function setRating(n){
+  document.getElementById('f_rating').value=n;
+  document.querySelectorAll('#ratingPicker span').forEach(s=>{ s.textContent = parseInt(s.dataset.n)<=n?'★':'☆'; });
+}
+
+let audioURL=null;
+document.getElementById('audioFile').onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  if(audioURL) URL.revokeObjectURL(audioURL);
+  audioURL=URL.createObjectURL(f);
+  const au=document.getElementById('fichaAudio');
+  au.src=audioURL; au.style.display='block'; au.play();
+};
+document.getElementById('fichaAudio').addEventListener('play',()=>{ const dsc=document.querySelector('#fichaArt .discBig'); if(dsc) dsc.classList.add('reproduciendo'); });
+['pause','ended'].forEach(ev=>document.getElementById('fichaAudio').addEventListener(ev,()=>{ const dsc=document.querySelector('#fichaArt .discBig'); if(dsc) dsc.classList.remove('reproduciendo'); }));
+
+function abrirZoom(src){ if(!src) return; document.getElementById('zoomImg').src=src; document.getElementById('zoomBg').classList.add('show'); }
+
+function abrirFicha(id){
+  const d=db.discos.find(x=>x.id===id); if(!d) return;
+  document.getElementById('fichaArt').innerHTML=(d.portada?`<img src="${d.portada}" onclick="abrirZoom('${d.portada}')" style="cursor:zoom-in;">`:'<div class="ph" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2.4rem;">💿</div>')+`<div class="discBig" style="--vc:${d.color_vinilo||''}"></div>`;
+  document.getElementById('fichaTitulo').textContent=d.titulo;
+  document.getElementById('fichaArtistaEl').textContent=d.artista||'Artista desconocido';
+  document.getElementById('fichaTags').innerHTML=[d.genero,d.anio,d.formato,d.condicion,d.estado_posesion==='quiero'?'Lo quiero':'En colección',d.escuchando?'▶ Sonando ahora':'',...(d.tags||[]).map(t=>'#'+t)].filter(Boolean).map(t=>`<span class="tag">${t}</span>`).join('');
+  let extra=(d.rating? `<div class="fichaDato">${'★'.repeat(d.rating)}${'☆'.repeat(5-d.rating)}</div>`:'')
+    +(d.precio?`<div class="fichaDato">💶 ${Number(d.precio).toFixed(2)} €</div>`:'')
+    +(d.fecha_compra?`<div class="fichaDato">📅 Comprado: ${d.fecha_compra}</div>`:'')
+    +(d.notas?`<div class="fichaNotas">${d.notas}</div>`:'');
+  if(d.tracklist){ const pistas=d.tracklist.split('\n').map(x=>x.trim()).filter(Boolean); if(pistas.length) extra+=`<ol class="fichaTracks">${pistas.map(p=>`<li>${p}</li>`).join('')}</ol>`; }
+  document.getElementById('fichaExtra').innerHTML=extra;
+  const yt=document.getElementById('fichaYoutube');
+  if(d.youtube){ yt.href=d.youtube; yt.style.display='inline-block'; } else { yt.style.display='none'; }
+  document.getElementById('fichaEditar').onclick=()=>{ cerrarFicha(); abrirModal(id); };
+  document.getElementById('fichaBg').classList.add('show');
+}
+function cerrarFicha(){
+  const au=document.getElementById('fichaAudio');
+  au.pause(); au.removeAttribute('src'); au.style.display='none';
+  if(audioURL){ URL.revokeObjectURL(audioURL); audioURL=null; }
+  document.getElementById('fichaBg').classList.remove('show');
+}
+function sorprendeme(){
+  const candidatos=db.discos.filter(d=>d.estado_posesion==='tengo');
+  if(candidatos.length===0){ alert('Aún no tienes discos en tu colección para sugerir.'); return; }
+  abrirFicha(candidatos[Math.floor(Math.random()*candidatos.length)].id);
+}
+let ultimoBorrado=null, toastTimer=null;
+function mostrarUndo(disco){
+  ultimoBorrado=disco;
+  document.getElementById('toastMsg').textContent='Eliminado: '+disco.titulo;
+  document.getElementById('toast').style.display='flex';
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{ document.getElementById('toast').style.display='none'; ultimoBorrado=null; },6000);
+}
+function deshacerBorrado(){
+  if(!ultimoBorrado) return;
+  db.discos.push(ultimoBorrado); ultimoBorrado=null;
+  guardarDB(); renderTodo();
+  document.getElementById('toast').style.display='none';
+  clearTimeout(toastTimer);
+}
+
+function abrirModal(id,estanteriaSugerida){
+  portadaBase64=null;
+  const d=id?db.discos.find(x=>x.id===id):null;
+  document.getElementById('modalTitulo').textContent=d?'Editar disco':'Añadir disco';
+  document.getElementById('f_id').value=d?d.id:'';
+  document.getElementById('f_titulo').value=d?.titulo||'';
+  document.getElementById('f_artista').value=d?.artista||'';
+  poblarGenero(d?.genero||'');
+  poblarAnio(d?.anio||null);
+  document.getElementById('f_formato').value=d?.formato||'LP';
+  document.getElementById('f_estado').value=d?.estado_posesion||'tengo';
+  document.getElementById('f_condicion').value=d?.condicion||'Muy bueno+ (VG+)';
+  document.getElementById('f_precio').value=d?.precio||'';
+  document.getElementById('f_color').value=d?.color_vinilo||'#1c1c1c';
+  setRating(d?.rating||0);
+  document.getElementById('f_escuchando').checked=!!d?.escuchando;
+  poblarEstanteriaSelect(d?.estanteria_id || estanteriaSugerida || db.estanterias[0]?.id);
+  document.getElementById('f_fecha').value=d?.fecha_compra||'';
+  document.getElementById('f_youtube').value=d?.youtube||'';
+  document.getElementById('f_tags').value=(d?.tags||[]).join(', ');
+  document.getElementById('f_tracklist').value=d?.tracklist||'';
+  document.getElementById('f_notas').value=d?.notas||'';
+  const prev=document.getElementById('f_preview');
+  if(d?.portada){ prev.src=d.portada; prev.style.display='block'; portadaBase64=d.portada; } else { prev.style.display='none'; }
+  document.getElementById('f_portada').value='';
+  document.getElementById('btnDanger').style.display=d?'block':'none';
+  document.getElementById('modalBg').classList.add('show');
+}
+function cerrarModal(){ document.getElementById('modalBg').classList.remove('show'); }
+
+document.getElementById('f_portada').onchange=e=>{
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=ev=>{ portadaBase64=ev.target.result; const p=document.getElementById('f_preview'); p.src=portadaBase64; p.style.display='block'; };
+  r.readAsDataURL(file);
+};
+
+function guardarDisco(){
+  const id=document.getElementById('f_id').value;
+  const titulo=document.getElementById('f_titulo').value.trim();
+  const artista=document.getElementById('f_artista').value.trim();
+  const dup=db.discos.find(x=>x.id!==id && x.titulo.trim().toLowerCase()===titulo.toLowerCase() && (x.artista||'').trim().toLowerCase()===artista.toLowerCase());
+  if(dup && !confirm('Ya tienes un disco con el mismo título y artista ("'+dup.titulo+'"). ¿Guardar igualmente?')) return;
+  const anioVal=document.getElementById('f_anio').value;
+  const anio=anioVal?parseInt(anioVal):null;
+  let genero=document.getElementById('f_genero').value;
+  if(genero==='__otro__') genero=document.getElementById('f_genero_otro').value.trim();
+  const previo=id?db.discos.find(x=>x.id===id):null;
+  const escuchando=document.getElementById('f_escuchando').checked;
+  if(escuchando) db.discos.forEach(x=>{ x.escuchando=false; });
+  const disco={
+    id:id||crypto.randomUUID(),
+    titulo, artista, genero, anio, decada:decadaDe(anio),
+    formato:document.getElementById('f_formato').value,
+    estado_posesion:document.getElementById('f_estado').value,
+    condicion:document.getElementById('f_condicion').value,
+    precio:parseFloat(document.getElementById('f_precio').value)||null,
+    color_vinilo:document.getElementById('f_color').value,
+    rating:parseInt(document.getElementById('f_rating').value)||0,
+    escuchando,
+    estanteria_id:document.getElementById('f_estanteria').value,
+    fecha_compra:document.getElementById('f_fecha').value,
+    youtube:document.getElementById('f_youtube').value.trim(),
+    tags:document.getElementById('f_tags').value.split(',').map(t=>t.trim()).filter(Boolean),
+    tracklist:document.getElementById('f_tracklist').value,
+    notas:document.getElementById('f_notas').value,
+    portada:portadaBase64,
+    fecha_alta:previo?previo.fecha_alta:new Date().toISOString()
+  };
+  if(!disco.titulo){ alert('Ponle al menos un título.'); return; }
+  if(id) db.discos=db.discos.map(x=>x.id===id?disco:x); else db.discos.push(disco);
+  guardarDB(); cerrarModal(); renderTodo();
+}
+function borrarDisco(){
+  const id=document.getElementById('f_id').value;
+  const d=db.discos.find(x=>x.id===id); if(!d) return;
+  db.discos=db.discos.filter(x=>x.id!==id);
+  guardarDB(); cerrarModal(); renderTodo();
+  mostrarUndo(d);
+}
+
+function abrirEstModal(id){
+  const e=id?db.estanterias.find(x=>x.id===id):null;
+  document.getElementById('estTitulo').textContent=e?'Editar estantería':'Nueva estantería';
+  document.getElementById('e_id').value=e?e.id:'';
+  document.getElementById('e_nombre').value=e?.nombre||'';
+  document.getElementById('e_desc').value=e?.descripcion||'';
+  document.getElementById('btnDangerEst').style.display=(e && db.estanterias.length>1)?'block':'none';
+  document.getElementById('estBg').classList.add('show');
+}
+function cerrarEstModal(){ document.getElementById('estBg').classList.remove('show'); }
+function guardarEstanteria(){
+  const id=document.getElementById('e_id').value;
+  const nombre=document.getElementById('e_nombre').value.trim();
+  if(!nombre){ alert('Ponle un nombre a la estantería.'); return; }
+  if(id){ const e=db.estanterias.find(x=>x.id===id); e.nombre=nombre; e.descripcion=document.getElementById('e_desc').value.trim(); }
+  else { db.estanterias.push({id:crypto.randomUUID(), nombre, descripcion:document.getElementById('e_desc').value.trim()}); }
+  guardarDB(); cerrarEstModal(); renderTodo();
+}
+function borrarEstanteria(){
+  const id=document.getElementById('e_id').value;
+  if(db.estanterias.length<=1){ alert('Debe quedar al menos una estantería.'); return; }
+  if(!confirm('Se eliminará la estantería. Sus discos pasarán a la primera disponible. ¿Continuar?')) return;
+  const destino=db.estanterias.find(x=>x.id!==id).id;
+  db.discos.forEach(d=>{ if(d.estanteria_id===id) d.estanteria_id=destino; });
+  db.estanterias=db.estanterias.filter(x=>x.id!==id);
+  guardarDB(); cerrarEstModal(); renderTodo();
+}
+
+function abrirStats(){
+  const n=db.discos.length;
+  const valor=db.discos.reduce((s,d)=>s+(d.precio||0),0);
+  const top=(fn)=>{ const c={}; db.discos.forEach(d=>{ const k=fn(d)||'—'; c[k]=(c[k]||0)+1; }); const e=Object.entries(c).sort((a,b)=>b[1]-a[1])[0]; return e; };
+  const topGen=top(d=>d.genero), topDec=top(d=>decadaDe(d.anio)), topArt=top(d=>d.artista);
+  const tengo=db.discos.filter(d=>d.estado_posesion==='tengo').length;
+  const artistas=new Set(db.discos.map(d=>d.artista).filter(Boolean)).size;
+  const valorados=db.discos.filter(d=>d.rating>0);
+  const media=valorados.length?(valorados.reduce((s,d)=>s+d.rating,0)/valorados.length).toFixed(1):'—';
+  document.getElementById('statsBody').innerHTML=`
+    <div class="fichaDato">💿 ${n} discos en total, en ${db.estanterias.length} estantería(s)</div>
+    <div class="fichaDato">🎤 ${artistas} artistas distintos</div>
+    <div class="fichaDato">💶 ${valor.toFixed(2)} € de valor estimado</div>
+    <div class="fichaDato">🎵 Género más repetido: ${topGen?topGen[0]+' ('+topGen[1]+')':'—'}</div>
+    <div class="fichaDato">🕰️ Década más repetida: ${topDec?topDec[0]+' ('+topDec[1]+')':'—'}</div>
+    <div class="fichaDato">⭐ Artista con más discos: ${topArt?topArt[0]+' ('+topArt[1]+')':'—'}</div>
+    <div class="fichaDato">🌟 Valoración media: ${media}${media!=='—'?' / 5':''} (${valorados.length} valorados)</div>
+    <div class="fichaDato">✅ ${tengo} en colección · 🎯 ${n-tengo} en lista de deseos</div>`;
+  document.getElementById('statsBg').classList.add('show');
+}
+function verDetalle(){ document.getElementById('statsBg').classList.remove('show'); document.querySelector('#pillVista [data-v="detalle"]').click(); }
+
+function conteoPor(fn){
+  const c={}; db.discos.forEach(d=>{ const k=fn(d); if(!k) return; c[k]=(c[k]||0)+1; });
+  return Object.entries(c).sort((a,b)=>b[1]-a[1]);
+}
+function tablaBarras(pares,max){
+  if(pares.length===0) return '<div class="empty" style="padding:10px;">Sin datos todavía.</div>';
+  return pares.map(([k,v])=>`<div class="barRow"><span class="barLabel">${k}</span><div class="barTrack"><div class="barFill" style="width:${Math.round(v/max*100)}%"></div></div><span class="barCount">${v}</span></div>`).join('');
+}
+function renderDetalle(){
+  const n=db.discos.length;
+  const cont=document.getElementById('detalleWrap');
+  if(n===0){ cont.innerHTML='<div class="empty">Aún no hay discos para mostrar estadísticas.</div>'; return; }
+  const valor=db.discos.reduce((s,d)=>s+(d.precio||0),0);
+  const tengo=db.discos.filter(d=>d.estado_posesion==='tengo').length;
+  const generos=conteoPor(d=>d.genero).slice(0,10);
+  const decadas=conteoPor(d=>decadaDe(d.anio));
+  const artistas=conteoPor(d=>d.artista).slice(0,10);
+  const formatos=conteoPor(d=>d.formato);
+  const ratingConteo=[5,4,3,2,1].map(n=>[n+' ★', db.discos.filter(d=>d.rating===n).length]);
+  const maxGen=Math.max(1,...generos.map(x=>x[1]));
+  const maxDec=Math.max(1,...decadas.map(x=>x[1]));
+  const maxArt=Math.max(1,...artistas.map(x=>x[1]));
+  const maxFor=Math.max(1,...formatos.map(x=>x[1]));
+  const maxRat=Math.max(1,...ratingConteo.map(x=>x[1]));
+  cont.innerHTML=`
+    <div class="statGrid">
+      <div class="statCard"><div class="num">${n}</div><div class="lbl">Discos totales</div></div>
+      <div class="statCard"><div class="num">${db.estanterias.length}</div><div class="lbl">Estanterías</div></div>
+      <div class="statCard"><div class="num">${valor.toFixed(0)} €</div><div class="lbl">Valor estimado</div></div>
+      <div class="statCard"><div class="num">${tengo} / ${n-tengo}</div><div class="lbl">Tengo / Quiero</div></div>
+    </div>
+    <div class="statSection"><h4>🎵 Por género</h4>${tablaBarras(generos,maxGen)}</div>
+    <div class="statSection"><h4>🕰️ Por década</h4>${tablaBarras(decadas,maxDec)}</div>
+    <div class="statSection"><h4>🎤 Top 10 artistas</h4>${tablaBarras(artistas,maxArt)}</div>
+    <div class="statSection"><h4>💿 Por formato</h4>${tablaBarras(formatos,maxFor)}</div>
+    <div class="statSection"><h4>🌟 Valoraciones</h4>${tablaBarras(ratingConteo,maxRat)}</div>`;
+}
+
+function abrirWrapped(manual){
+  const ahora=Date.now();
+  const unAnio=365*24*60*60*1000;
+  const desdeMs=ahora-unAnio;
+  const nuevos=db.discos.filter(d=>d.fecha_alta && new Date(d.fecha_alta).getTime()>=desdeMs);
+  const base = nuevos.length? nuevos : db.discos;
+  const top=(arr,fn)=>{ const c={}; arr.forEach(d=>{ const k=fn(d); if(!k) return; c[k]=(c[k]||0)+1; }); const e=Object.entries(c).sort((a,b)=>b[1]-a[1])[0]; return e; };
+  const topGen=top(base,d=>d.genero);
+  const artistasDistintos=new Set(base.map(d=>d.artista).filter(Boolean)).size;
+  const mejor=[...base].filter(d=>d.rating>0).sort((a,b)=>b.rating-a.rating)[0];
+  const gasto=base.reduce((s,d)=>s+(d.precio||0),0);
+  const slides=[
+    `<div class="wSlide show"><div class="wTitle">🎉 Tu año en vinilos</div><div class="wNum">${nuevos.length||db.discos.length}</div><div class="wTxt">discos ${nuevos.length?'añadidos este año':'en tu colección'}</div></div>`,
+    `<div class="wSlide"><div class="wTitle">🎵 Tu género favorito</div><div class="wNum" style="font-size:1.8rem;">${topGen?topGen[0]:'—'}</div><div class="wTxt">${topGen?topGen[1]+' discos':''}</div></div>`,
+    `<div class="wSlide"><div class="wTitle">🎤 Artistas distintos</div><div class="wNum">${artistasDistintos}</div><div class="wTxt">han sonado en tu estantería</div></div>`,
+    `<div class="wSlide"><div class="wTitle">⭐ Tu disco mejor valorado</div><div class="wNum" style="font-size:1.3rem;">${mejor?mejor.titulo:'Aún sin valorar ninguno'}</div><div class="wTxt">${mejor?'★'.repeat(mejor.rating)+'☆'.repeat(5-mejor.rating):''}</div></div>`,
+    `<div class="wSlide"><div class="wTitle">💶 Valor estimado</div><div class="wNum">${gasto.toFixed(0)} €</div><div class="wTxt">en los discos de este resumen</div></div>`,
+    `<div class="wSlide"><div class="wTitle">📀 En total</div><div class="wNum">${db.discos.length}</div><div class="wTxt">discos en ${db.estanterias.length} estanterías. ¡Gracias por coleccionar!</div></div>`,
+  ];
+  document.getElementById('wSlides').innerHTML=slides.join('');
+  document.getElementById('wDots').innerHTML=slides.map((_,i)=>`<span class="${i===0?'on':''}"></span>`).join('');
+  window._wIndex=0;
+  document.getElementById('wrappedBg').classList.add('show');
+  localStorage.setItem('vinilos_wrapped_ultimo', String(ahora));
+  document.getElementById('wrappedBanner').style.display='none';
+}
+function wCambiar(dir){
+  const slides=document.querySelectorAll('#wSlides .wSlide');
+  const dots=document.querySelectorAll('#wDots span');
+  if(!slides.length) return;
+  slides[window._wIndex].classList.remove('show'); dots[window._wIndex].classList.remove('on');
+  window._wIndex=(window._wIndex+dir+slides.length)%slides.length;
+  slides[window._wIndex].classList.add('show'); dots[window._wIndex].classList.add('on');
+}
+function cerrarWrapped(){ document.getElementById('wrappedBg').classList.remove('show'); }
+function comprobarWrappedAnual(){
+  if(db.discos.length===0) return;
+  const ahora=Date.now(), unAnio=365*24*60*60*1000;
+  const primerUso=localStorage.getItem('vinilos_wrapped_primer');
+  if(!primerUso){ localStorage.setItem('vinilos_wrapped_primer', String(ahora)); return; }
+  const ultimo=localStorage.getItem('vinilos_wrapped_ultimo');
+  const referencia=ultimo?parseInt(ultimo):parseInt(primerUso);
+  if(ahora-referencia>=unAnio){ document.getElementById('wrappedBanner').style.display='flex'; }
+}
+
+async function exportarJSON(){
+  const data = JSON.stringify(db,null,2);
+  try{
+    const dl = window.claude ? await window.claude.use('downloads') : null;
+    if(dl){ await dl.save({filename:'vinilos-backup.json', data}); return; }
+  }catch(e){ if(e && e.code==='declined') return; }
+  try{
+    const blob=new Blob([data],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download='vinilos-backup.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }catch(e){ alert('No se pudo exportar el archivo en esta vista.'); }
+}
+document.getElementById('importFile').onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const parsed=JSON.parse(ev.target.result);
+      if(!parsed.discos) throw new Error();
+      if(confirm('Esto sustituirá tu colección actual por la del archivo importado. ¿Continuar?')){
+        db=parsed; if(!db.estanterias) db.estanterias=[];
+        migrar(); guardarDB(); renderTodo();
+      }
+    }catch(err){ alert('El archivo no es un backup válido.'); }
+  };
+  r.readAsText(f); e.target.value='';
+};
+
+migrar();
+renderTodo();
+comprobarWrappedAnual();
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{ navigator.serviceWorker.register('service-worker.js').catch(()=>{}); });
+}
+</script>
+</body>
+</html>
