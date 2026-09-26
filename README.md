@@ -2,7 +2,7 @@
 
 Una app de catálogo para colecciones de vinilos: estanterías organizables por artista, arrastrar y soltar para reordenar, ficha detallada por disco, estadísticas, resumen anual estilo *Wrapped*, y funcionamiento 100% offline como PWA instalable.
 
-**[▶ Ver demo en vivo](https://TU-USUARIO.github.io/TU-REPO/)** — pulsa el botón 🧪 al entrar para cargar una colección de ejemplo sin tener que rellenar nada a mano.
+**[▶ Ver demo en vivo](https://ivanchux.github.io/inventario-vinilos/)** — pulsa el botón 🧪 al entrar para cargar una colección de ejemplo sin tener que rellenar nada a mano.
 
 > Nació para digitalizar la colección de vinilos de mi padre (varios cientos de discos apuntados a mano desde los años 80) y ha acabado siendo un pequeño estudio de diseño de interfaz, PWA y modelado de datos sin backend.
 
