@@ -1,6 +1,6 @@
 # 📀 Inventario de Vinilos
 
-Una app de catálogo para colecciones de vinilos: estanterías organizables por artista, arrastrar y soltar para reordenar, ficha detallada por disco, estadísticas, resumen anual estilo *Wrapped*, y funcionamiento 100% offline como PWA instalable.
+Una app de catálogo para colecciones de vinilos: estanterías organizables por artista, arrastrar y soltar para reordenar, un asistente guiado para añadir discos en segundos, estadísticas, resumen anual estilo *Wrapped*, y funcionamiento 100% offline como PWA instalable.
 
 **[▶ Ver demo en vivo](https://ivanchux.github.io/inventario-vinilos/)** — pulsa el botón 🧪 al entrar para cargar una colección de ejemplo sin tener que rellenar nada a mano.
 
@@ -11,13 +11,16 @@ Una app de catálogo para colecciones de vinilos: estanterías organizables por 
 
 ## Funcionalidades
 
+- **Asistente guiado para añadir discos**: en vez de un formulario largo, va preguntando una cosa cada vez (título, artista, portada), con un botón que busca la portada en Google usando lo que ya has escrito. El formulario completo sigue disponible como "modo avanzado".
 - **Estanterías arrastrables**: organiza los discos por artista (o como quieras) en carruseles horizontales, con orden manual o automático por año/título.
 - **Ficha independiente del formulario**: al abrir un disco ves una vista de detalle (con el vinilo animándose mientras suena audio), separada de la pantalla de edición.
 - **Reproducción de audio local**: si tienes el archivo descargado, se reproduce ahí mismo con el vinilo girando al ritmo de la reproducción.
-- **Estadísticas y sección de detalle**: gráficos por género, década, top artistas, valoraciones y valor estimado de la colección.
+- **Estadísticas y sección de detalle**: gráficos por género, década, top artistas, valoraciones, valor estimado y espacio de almacenamiento usado.
 - **Resumen anual estilo Wrapped**: un repaso animado de tu año en discos, con aviso automático cada 365 días.
+- **Diálogos propios, navegables por teclado**: confirmaciones y avisos con la estética de la app (Enter para confirmar/avanzar, Escape para cerrar), sin ventanas nativas del navegador.
+- **Compresión automática de fotos**: las portadas se redimensionan y comprimen al subirlas, para no agotar el espacio del navegador.
 - **Exportar / importar**: backup completo en JSON, para migrar entre dispositivos o hacer copias de seguridad.
-- **PWA instalable y offline**: se puede añadir a la pantalla de inicio en iOS/Android y funciona sin conexión (service worker + caché), con icono y splash propios.
+- **PWA instalable y offline**: se puede añadir a la pantalla de inicio en iOS/Android y funciona sin conexión (service worker + caché), con icono propio y actualización automática cuando hay conexión.
 - **Sin backend, sin cuentas, sin tracking**: todos los datos viven en `localStorage`, en el propio dispositivo.
 
 ## Stack
@@ -29,8 +32,8 @@ Elegido a propósito: cero dependencias, cero backend que mantener, y cualquiera
 ## Cómo probarlo en local
 
 ```bash
-git clone https://github.com/TU-USUARIO/TU-REPO.git
-cd TU-REPO
+git clone https://github.com/ivanchux/inventario-vinilos.git
+cd inventario-vinilos
 python3 -m http.server 8000
 # abre http://localhost:8000
 ```
