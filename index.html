@@ -14,28 +14,28 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#150e09;--panel:#241809;--panel2:#332418;--wood:#3a2515;--wood2:#4a3018;--accent:#e8a94c;--accent2:#c9784a;--text:#f5e8d8;--muted:#a9876b;--danger:#c0554a;--ring:#e8a94c55;}
+:root{--bg:#150e09;--bg2:#231609;--panel:#241809;--panel2:#332418;--wood:#3a2515;--wood2:#4a3018;--accent:#e8a94c;--accent2:#c9784a;--text:#f5e8d8;--muted:#a9876b;--danger:#c0554a;--ring:#e8a94c55;--surface:#1c130c;--surface-a:#1c130cee;--header-bg:#150e09cc;}
 *{box-sizing:border-box;}
 body{margin:0;font-family:'Share Tech Mono',monospace;background:var(--bg);color:var(--text);min-height:100%;overflow-x:hidden;padding-bottom:env(safe-area-inset-bottom,0px);}
-#waves{position:fixed;inset:0;z-index:-1;overflow:hidden;background:radial-gradient(120% 90% at 20% 0%,#231609 0%,var(--bg) 60%);}
+#waves{position:fixed;inset:0;z-index:-1;overflow:hidden;background:radial-gradient(120% 90% at 20% 0%,var(--bg2) 0%,var(--bg) 60%);}
 .beam{position:absolute;border-radius:50%;filter:blur(70px);opacity:.25;mix-blend-mode:screen;}
 .b1{width:70vw;height:70vw;left:-20vw;top:-15vw;background:radial-gradient(circle,var(--accent),transparent 70%);animation:d1 42s ease-in-out infinite;}
 .b2{width:60vw;height:60vw;right:-15vw;top:20vh;background:radial-gradient(circle,var(--accent2),transparent 70%);animation:d2 55s ease-in-out infinite;}
 @keyframes d1{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(8vw,10vh) scale(1.15);}}
 @keyframes d2{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(-10vw,-6vh) scale(1.1);}}
 @media (prefers-reduced-motion:reduce){.beam,.estanteria,.discBig,.sonando{animation:none!important;}}
-header{padding:16px 20px 10px;position:sticky;top:env(safe-area-inset-top,0px);display:flex;gap:10px;flex-wrap:wrap;align-items:center;z-index:5;backdrop-filter:blur(10px);background:#150e09cc;border-bottom:1px solid #ffffff10;}
+header{padding:16px 20px 10px;position:sticky;top:env(safe-area-inset-top,0px);display:flex;gap:10px;flex-wrap:wrap;align-items:center;z-index:5;backdrop-filter:blur(10px);background:var(--header-bg);border-bottom:1px solid #ffffff10;}
 h1{margin:0;font-family:'Orbitron',sans-serif;font-weight:800;font-size:1.3rem;color:var(--accent);flex:1 1 100%;}
 h1 span{color:var(--muted);font-weight:600;font-size:.85rem;}
-input,select,textarea,button{font-family:inherit;font-size:.9rem;padding:8px 10px;border-radius:8px;border:1px solid #ffffff22;background:#1c130c;color:var(--text);outline:none;}
+input,select,textarea,button{font-family:inherit;font-size:.9rem;padding:8px 10px;border-radius:8px;border:1px solid #ffffff22;background:var(--surface);color:var(--text);outline:none;}
 button{transition:transform .12s ease,background-color .15s ease,border-color .15s ease;}
 button:active{transform:scale(.95);}
 input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--ring);}
 #buscador{flex:1;min-width:150px;}
-.iconBtn{cursor:pointer;background:#1c130c;border:1px solid #ffffff22;color:var(--accent);}
+.iconBtn{cursor:pointer;background:var(--surface);border:1px solid #ffffff22;color:var(--accent);}
 .iconBtn:hover{border-color:var(--accent);}
 .filtros{display:flex;gap:6px;padding:10px 20px 0;flex-wrap:wrap;align-items:center;}
-.pillgroup{display:flex;gap:4px;background:#1c130c;border-radius:20px;padding:3px;border:1px solid #ffffff1a;}
+.pillgroup{display:flex;gap:4px;background:var(--surface);border-radius:20px;padding:3px;border:1px solid #ffffff1a;}
 .pill{padding:5px 12px;border-radius:16px;cursor:pointer;font-size:.78rem;color:var(--muted);}
 .pill.active{background:var(--accent2);color:#1c130c;font-weight:700;}
 #estanterias{padding:10px 0 110px;}
@@ -51,7 +51,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
 .fila{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 4px 16px;scrollbar-width:thin;}
 .fila::-webkit-scrollbar{height:6px;}
 .fila::-webkit-scrollbar-thumb{background:#ffffff22;border-radius:4px;}
-.navBtn{position:absolute;top:34%;width:32px;height:32px;border-radius:50%;background:#1c130cee;border:1px solid #ffffff2a;color:var(--accent);cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;}
+.navBtn{position:absolute;top:34%;width:32px;height:32px;border-radius:50%;background:var(--surface-a);border:1px solid #ffffff2a;color:var(--accent);cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;}
 .navL{left:-4px;} .navR{right:-4px;}
 .card{background:var(--panel);border-radius:12px;padding:9px;cursor:grab;text-align:left;border:1px solid #ffffff12;transition:transform .15s,border-color .15s,opacity .15s;position:relative;width:148px;flex:0 0 148px;scroll-snap-align:start;}
 .card:hover{transform:translateY(-5px) rotate(-1deg);border-color:var(--ring);}
@@ -93,10 +93,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
 .discBig.reproduciendo{animation:girar 2.8s linear infinite;}
 @keyframes girar{to{transform:rotate(360deg);}}
 .audioBox{margin-top:14px;text-align:center;}
-.audioBox button,.ytBtn{background:#1c130c;border:1px solid #ffffff22;color:var(--accent);padding:7px 12px;font-size:.8rem;border-radius:8px;cursor:pointer;margin:0 4px;display:inline-block;text-decoration:none;}
+.audioBox button,.ytBtn{background:var(--surface);border:1px solid #ffffff22;color:var(--accent);padding:7px 12px;font-size:.8rem;border-radius:8px;cursor:pointer;margin:0 4px;display:inline-block;text-decoration:none;}
 #fichaAudio{width:100%;margin-top:8px;}
 #zoomBg{cursor:zoom-out;}
-#toast{display:none;position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:#1c130c;border:1px solid var(--accent);padding:10px 16px;border-radius:10px;z-index:20;font-size:.8rem;gap:12px;align-items:center;box-shadow:0 4px 16px #000a;animation:toastIn .3s ease;}
+#toast{display:none;position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--accent);padding:10px 16px;border-radius:10px;z-index:20;font-size:.8rem;gap:12px;align-items:center;box-shadow:0 4px 16px #000a;animation:toastIn .3s ease;}
 @keyframes toastIn{from{opacity:0;transform:translate(-50%,14px);}to{opacity:1;transform:translate(-50%,0);}}
 #wrappedBanner{animation:toastIn .3s ease;}
 .pop{animation:popScale .4s ease;}
@@ -127,7 +127,7 @@ tbody tr:hover{background:#ffffff08;}
 .barTrack{flex:1;background:#ffffff10;border-radius:6px;height:14px;overflow:hidden;}
 .barFill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:6px;}
 .barCount{width:34px;text-align:right;color:var(--text);font-size:.74rem;}
-#wrappedBg .box{max-width:380px;text-align:center;background:linear-gradient(160deg,#2a1c12,#1c130c);}
+#wrappedBg .box{max-width:380px;text-align:center;background:linear-gradient(160deg,var(--panel2),var(--surface));}
 .wSlide{display:none;min-height:280px;flex-direction:column;justify-content:center;align-items:center;padding:10px 4px;}
 .wSlide.show{display:flex;animation:wFade .3s ease;}
 @keyframes wFade{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
@@ -143,6 +143,11 @@ tbody tr:hover{background:#ffffff08;}
 .portadaZone:hover{border-color:var(--accent);color:var(--accent);}
 .toggleDetalles{margin-top:20px;width:100%;background:transparent;border:1px dashed #ffffff2a;color:var(--muted);cursor:pointer;padding:10px;border-radius:8px;font-size:.85rem;}
 .toggleDetalles:hover{border-color:var(--accent);color:var(--accent);}
+.swatch{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 8px;border-radius:12px;border:2px solid #ffffff22;cursor:pointer;transition:border-color .15s;}
+.swatch:hover{border-color:#ffffff55;}
+.swatch.activo{border-color:var(--accent);}
+.swatch .bola{width:36px;height:36px;border-radius:50%;box-shadow:0 2px 8px #0006;}
+.swatch .nombre{font-size:.78rem;}
 </style>
 </head>
 <body>
@@ -157,6 +162,7 @@ tbody tr:hover{background:#ffffff08;}
 <button class="iconBtn" onclick="exportarJSON()">⬇️</button>
 <button class="iconBtn" onclick="document.getElementById('importFile').click()">⬆️</button>
 <input type="file" id="importFile" accept=".json,application/json" style="display:none">
+<button class="iconBtn" onclick="abrirTemas()" title="Cambiar colores">🎨</button>
 <button class="iconBtn" onclick="abrirEstModal()">＋ Estantería</button>
 <button class="iconBtn" onclick="cargarDemo()" title="Cargar colección de ejemplo">🧪</button>
 </header>
@@ -174,7 +180,7 @@ tbody tr:hover{background:#ffffff08;}
 </div>
 <div id="wrappedBanner" style="display:none;margin:10px 20px 0;padding:10px 14px;background:linear-gradient(90deg,var(--accent2),var(--accent));color:#1c130c;border-radius:10px;font-size:.82rem;display:flex;align-items:center;gap:10px;">
 <span style="flex:1;font-weight:700;">🎁 Tu resumen anual ya está listo</span>
-<button onclick="abrirWrapped()" style="background:#1c130c;color:var(--accent);font-weight:700;">Ver</button>
+<button onclick="abrirWrapped()" style="background:var(--surface);color:var(--accent);font-weight:700;">Ver</button>
 <button onclick="document.getElementById('wrappedBanner').style.display='none'" style="background:transparent;border:none;color:#1c130c;font-weight:700;cursor:pointer;">✕</button>
 </div>
 <div id="estanterias"></div>
@@ -198,6 +204,7 @@ tbody tr:hover{background:#ffffff08;}
 <div class="fichaTags" id="fichaTags"></div>
 <div id="fichaExtra"></div>
 <div class="audioBox" id="fichaAudioBox">
+<button id="fichaBuscarPortada">🔍 Buscar portada</button>
 <button onclick="document.getElementById('audioFile').click()">🎧 Reproducir audio local</button>
 <a class="ytBtn" id="fichaYoutube" href="#" target="_blank" rel="noopener" style="display:none;">▶ Ver en YouTube</a>
 <input type="file" id="audioFile" accept="audio/*" style="display:none">
@@ -304,6 +311,7 @@ Al buscarla, se abre una pestaña nueva. Clic derecho sobre la imagen → Guarda
 <datalist id="listaArtistas"></datalist>
 <label>Estantería</label><select id="f_estanteria"></select>
 <label>Portada (opcional)</label>
+<button type="button" onclick="buscarPortadaGoogle('f')" style="width:100%;background:transparent;border:1px solid #ffffff22;color:var(--accent);cursor:pointer;padding:9px;border-radius:8px;font-size:.85rem;">🔍 Buscar esta portada en Google</button>
 <div class="portadaZone" onclick="document.getElementById('f_portada').click()">📷 Toca para añadir una foto</div>
 <input id="f_portada" type="file" accept="image/*" style="display:none">
 <img id="f_preview" style="max-width:120px;margin-top:8px;display:none;border-radius:6px;">
@@ -344,6 +352,23 @@ Al buscarla, se abre una pestaña nueva. Clic derecho sobre la imagen → Guarda
 </div>
 </div>
 
+<div class="overlay" id="temaBg">
+<div class="box" style="text-align:center;">
+<h2>🎨 Elegir colores</h2>
+<div id="temaLista" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px;">
+<button class="swatch" data-tema="ambar" onclick="aplicarTema('ambar')" style="background:#241809;">
+<span class="bola" style="background:linear-gradient(135deg,#e8a94c,#150e09);"></span><span class="nombre" style="color:#f5e8d8;">Ámbar</span></button>
+<button class="swatch" data-tema="medianoche" onclick="aplicarTema('medianoche')" style="background:#151d33;">
+<span class="bola" style="background:linear-gradient(135deg,#7c9eff,#0a0e1a);"></span><span class="nombre" style="color:#e8ecfb;">Medianoche</span></button>
+<button class="swatch" data-tema="verde" onclick="aplicarTema('verde')" style="background:#0e1b12;">
+<span class="bola" style="background:linear-gradient(135deg,#5de8a0,#070f09);"></span><span class="nombre" style="color:#e2f7e8;">Verde Vinilo</span></button>
+<button class="swatch" data-tema="synth" onclick="aplicarTema('synth')" style="background:#20112a;">
+<span class="bola" style="background:linear-gradient(135deg,#ff6ec7,#140a1b);"></span><span class="nombre" style="color:#fbe8f7;">Synthwave</span></button>
+</div>
+<div class="actions" style="margin-top:20px;"><button onclick="cerrarTemas()" style="width:100%;">Cerrar</button></div>
+</div>
+</div>
+
 <div class="overlay" id="estBg">
 <div class="box">
 <h2 id="estTitulo">Nueva estantería</h2>
@@ -369,6 +394,36 @@ function uuid(){
 function esc(s){
   return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
+const TEMAS={
+  ambar:{bg:'#150e09',bg2:'#231609',panel:'#241809',panel2:'#332418',wood:'#3a2515',wood2:'#4a3018',accent:'#e8a94c',accent2:'#c9784a',text:'#f5e8d8',muted:'#a9876b',danger:'#c0554a',ring:'#e8a94c55',surface:'#1c130c',surfaceA:'#1c130cee',headerBg:'#150e09cc'},
+  medianoche:{bg:'#0a0e1a',bg2:'#131b30',panel:'#151d33',panel2:'#1e2a4a',wood:'#1a2340',wood2:'#263257',accent:'#7c9eff',accent2:'#5e7ad1',text:'#e8ecfb',muted:'#8891b8',danger:'#e0597a',ring:'#7c9eff55',surface:'#111830',surfaceA:'#111830ee',headerBg:'#0a0e1acc'},
+  verde:{bg:'#070f09',bg2:'#0f1f14',panel:'#0e1b12',panel2:'#17291c',wood:'#122218',wood2:'#1b3322',accent:'#5de8a0',accent2:'#3bc47f',text:'#e2f7e8',muted:'#7faa8c',danger:'#e0597a',ring:'#5de8a055',surface:'#0c1710',surfaceA:'#0c1710ee',headerBg:'#070f09cc'},
+  synth:{bg:'#140a1b',bg2:'#22102c',panel:'#20112a',panel2:'#2e1a3c',wood:'#271333',wood2:'#361c47',accent:'#ff6ec7',accent2:'#c23fd6',text:'#fbe8f7',muted:'#b587bd',danger:'#ff5a5a',ring:'#ff6ec755',surface:'#190d22',surfaceA:'#190d22ee',headerBg:'#140a1bcc'}
+};
+function aplicarTema(clave){
+  const t=TEMAS[clave]; if(!t) return;
+  const r=document.documentElement.style;
+  r.setProperty('--bg',t.bg); r.setProperty('--bg2',t.bg2);
+  r.setProperty('--panel',t.panel); r.setProperty('--panel2',t.panel2);
+  r.setProperty('--wood',t.wood); r.setProperty('--wood2',t.wood2);
+  r.setProperty('--accent',t.accent); r.setProperty('--accent2',t.accent2);
+  r.setProperty('--text',t.text); r.setProperty('--muted',t.muted);
+  r.setProperty('--danger',t.danger); r.setProperty('--ring',t.ring);
+  r.setProperty('--surface',t.surface); r.setProperty('--surface-a',t.surfaceA);
+  r.setProperty('--header-bg',t.headerBg);
+  const metaTheme=document.querySelector('meta[name="theme-color"]');
+  if(metaTheme) metaTheme.content=t.bg;
+  try{ localStorage.setItem('vinilos_tema', clave); }catch(e){}
+  document.querySelectorAll('#temaLista .swatch').forEach(s=>s.classList.toggle('activo', s.dataset.tema===clave));
+}
+function abrirTemas(){ document.getElementById('temaBg').classList.add('show'); }
+function cerrarTemas(){ document.getElementById('temaBg').classList.remove('show'); }
+(function cargarTemaGuardado(){
+  let guardado='ambar';
+  try{ guardado=localStorage.getItem('vinilos_tema')||'ambar'; }catch(e){}
+  aplicarTema(guardado);
+})();
+
 const DB_KEY='vinilos_db';
 let db = {discos:[],estanterias:[]};
 let portadaBase64=null, filtroEstado='todos', vista='estanterias', sortCol='titulo', sortDir=1;
@@ -720,6 +775,10 @@ function abrirFicha(id){
   document.getElementById('fichaExtra').innerHTML=extra;
   const yt=document.getElementById('fichaYoutube');
   if(d.youtube){ yt.href=d.youtube; yt.style.display='inline-block'; } else { yt.style.display='none'; }
+  document.getElementById('fichaBuscarPortada').onclick=()=>{
+    const q=[d.artista,d.titulo].filter(Boolean).join(' ').trim();
+    if(q) window.open('https://www.google.com/search?tbm=isch&q='+encodeURIComponent(q+' portada disco'), '_blank');
+  };
   document.getElementById('fichaEditar').onclick=()=>{ cerrarFicha(); abrirModal(id); };
   document.getElementById('fichaBg').classList.add('show');
 }
@@ -773,9 +832,10 @@ async function wizSiguiente(actual){
   }
   wizIr(actual+1);
 }
-function buscarPortadaGoogle(){
-  const t=document.getElementById('wiz_titulo').value.trim();
-  const a=document.getElementById('wiz_artista').value.trim();
+function buscarPortadaGoogle(prefijo){
+  const p=prefijo||'wiz';
+  const t=document.getElementById(p+'_titulo').value.trim();
+  const a=document.getElementById(p+'_artista').value.trim();
   const q=[a,t].filter(Boolean).join(' ').trim();
   if(!q) return;
   window.open('https://www.google.com/search?tbm=isch&q='+encodeURIComponent(q+' portada disco'), '_blank');
@@ -833,6 +893,7 @@ document.addEventListener('keydown', e=>{
     else if(abierto('estBg')) cerrarEstModal();
     else if(abierto('zoomBg')) document.getElementById('zoomBg').classList.remove('show');
     else if(abierto('wrappedBg')) cerrarWrapped();
+    else if(abierto('temaBg')) cerrarTemas();
   }
 });
 
