@@ -130,6 +130,9 @@ tbody tr:hover{background:#ffffff08;}
 #wrappedBg .box{max-width:380px;text-align:center;background:linear-gradient(160deg,var(--panel2),var(--surface));}
 .wSlide{display:none;min-height:280px;flex-direction:column;justify-content:center;align-items:center;padding:10px 4px;}
 .wSlide.show{display:flex;animation:wFade .3s ease;}
+#wizardBg .wSlide{align-items:stretch;}
+#wizardBg .wSlide img{align-self:center;}
+@media (max-width:600px){header{position:static;}}
 @keyframes wFade{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
 .wSlide .wNum{font-family:'Orbitron',sans-serif;font-size:2.6rem;color:var(--accent);}
 .wSlide .wTitle{font-family:'Orbitron',sans-serif;font-size:1.1rem;color:var(--accent);margin-bottom:10px;}
@@ -178,7 +181,7 @@ tbody tr:hover{background:#ffffff08;}
 <div class="pill" data-v="detalle">📈 Detalle</div>
 </div>
 </div>
-<div id="wrappedBanner" style="display:none;margin:10px 20px 0;padding:10px 14px;background:linear-gradient(90deg,var(--accent2),var(--accent));color:#1c130c;border-radius:10px;font-size:.82rem;display:flex;align-items:center;gap:10px;">
+<div id="wrappedBanner" style="display:none;margin:10px 20px 0;padding:10px 14px;background:linear-gradient(90deg,var(--accent2),var(--accent));color:#1c130c;border-radius:10px;font-size:.82rem;align-items:center;gap:10px;">
 <span style="flex:1;font-weight:700;">🎁 Tu resumen anual ya está listo</span>
 <button onclick="abrirWrapped()" style="background:var(--surface);color:var(--accent);font-weight:700;">Ver</button>
 <button onclick="document.getElementById('wrappedBanner').style.display='none'" style="background:transparent;border:none;color:#1c130c;font-weight:700;cursor:pointer;">✕</button>
