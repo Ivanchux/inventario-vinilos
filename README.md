@@ -121,6 +121,23 @@ Servirlo por `http://` (en vez de abrir el archivo con doble clic) evita limitac
 - [ ] Reordenar estanterías con el teclado, no solo arrastrando (accesibilidad)
 - [ ] Generalizar el modelo de datos para otras colecciones (libros, cómics, cartas...)
 
-## Licencia
+## 📜 Licencia
 
-MIT: usa, copia y modifica libremente.
+El código y los diseños están bajo [PolyForm Noncommercial 1.0.0](https://github.com/Ivanchux/inventario-vinilos/blob/main/LICENSE).
+
+**Puedes, sin pedir permiso:**
+
+* Usar la app para tu colección y compartir el enlace.
+* Estudiar el código y modificarlo para uso personal, educativo o sin ánimo de lucro.
+* Subirla a tu propio hosting, siempre gratis y sin anuncios, conservando el aviso de copyright y la licencia.
+* Hacer vídeos, capturas y reseñas de la app, aunque tu canal esté monetizado.
+* Inspirarte en las ideas y el funcionamiento para crear tu propia app desde cero.
+
+**Necesitas mi permiso por escrito para:**
+
+* Vender la app, una copia o una versión modificada.
+* Publicarla en tiendas de aplicaciones.
+* Incluirla en una web con anuncios, suscripciones o compras.
+* Usar el código o los diseños en un producto comercial.
+
+La estética del resumen anual se inspira en los resúmenes tipo "Wrapped", pero este proyecto no está afiliado a Spotify ni a ninguna otra plataforma de música. Las portadas y los datos de los discos pertenecen a sus respectivos autores y sellos.
