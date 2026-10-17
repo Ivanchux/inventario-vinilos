@@ -1,0 +1,16 @@
+# Servidor de sincronización de Inventario de Vinilos en Cloudflare Workers (gratis).
+# Pasos en el README, apartado «Sincronización con Cloudflare».
+
+name = "vinilos-sync"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+
+[[kv_namespaces]]
+binding = "VINILOS"
+# Pega aquí el id que te da: npx wrangler kv namespace create VINILOS
+id = "PEGA_AQUI_EL_ID"
+
+[vars]
+ALLOWED_ORIGIN = "https://ivanchux.github.io"
+
+# La contraseña no va aquí: npx wrangler secret put CREATE_PASSWORD

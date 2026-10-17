@@ -34,6 +34,16 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Pruebas de la app en el navegador
         run: python tests/e2e.py
+      - name: Pruebas del servidor de Cloudflare (en local, con wrangler)
+        run: |
+          cd server/cloudflare
+          npx --yes wrangler@3.99.0 dev --port 8788 --ip 127.0.0.1 --var CREATE_PASSWORD:clave-e2e --var 'ALLOWED_ORIGIN:*' > /tmp/wrangler.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://127.0.0.1:8788/api/health && break; sleep 2; done
+          cd ../..
+          SERVIDOR=http://127.0.0.1:8788 CREATE_PASSWORD=clave-e2e node server/api.test.mjs
+          SERVIDOR_SYNC=http://127.0.0.1:8788 python tests/e2e.py
+        env:
+          WRANGLER_SEND_METRICS: 'false'
 
   desplegar:
     # Solo se publica si todas las pruebas pasan
