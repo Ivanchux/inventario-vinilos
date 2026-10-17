@@ -1,0 +1,6 @@
+# Archivos temporales de wrangler y dependencias
+.wrangler/
+node_modules/
+# Datos del servidor de Node en local
+data/
+__pycache__/
