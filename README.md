@@ -1,128 +1,142 @@
-<p align="center">
-  <img src="docs/banner.png" alt="Inventario de Vinilos: tu colección en estanterías, offline y instalable como app" width="100%">
-</p>
+<h1 align="center">📀 Inventario de Vinilos</h1>
 
 <p align="center">
-  <a href="https://ivanchux.github.io/inventario-vinilos/"><img alt="Demo en vivo" src="https://img.shields.io/badge/demo-en%20vivo-e8a94c?style=for-the-badge"></a>
-  <a href="https://github.com/ivanchux/inventario-vinilos/actions/workflows/deploy.yml"><img alt="Despliegue" src="https://github.com/ivanchux/inventario-vinilos/actions/workflows/deploy.yml/badge.svg"></a>
-  <img alt="PWA instalable" src="https://img.shields.io/badge/PWA-instalable%20y%20offline-5de8a0">
-  <img alt="Sin dependencias" src="https://img.shields.io/badge/dependencias-0-c9784a">
-  <a href="LICENSE"><img alt="Licencia MIT" src="https://img.shields.io/badge/licencia-MIT-lightgrey"></a>
+  <a href="https://ivanchux.github.io/inventario-vinilos/"><img alt="Abrir la app" src="https://img.shields.io/badge/abrir-la%20app-e8a54b?style=for-the-badge"></a>
+  <a href="https://github.com/ivanchux/inventario-vinilos/actions/workflows/deploy.yml"><img alt="Pruebas y despliegue" src="https://github.com/ivanchux/inventario-vinilos/actions/workflows/deploy.yml/badge.svg"></a>
+  <img alt="PWA instalable" src="https://img.shields.io/badge/PWA-instalable%20y%20sin%20conexión-63dfa0">
+  <img alt="Sin dependencias" src="https://img.shields.io/badge/dependencias-0-c97a45">
+  <a href="LICENSE"><img alt="Licencia PolyForm Noncommercial" src="https://img.shields.io/badge/licencia-PolyForm%20Noncommercial-lightgrey"></a>
 </p>
 
-<p align="center">
-  <b>Catálogo de vinilos con estanterías que se arrastran, ficha por disco, estadísticas y resumen anual.<br>
-  Funciona sin conexión, se instala como app y no necesita backend.</b>
-</p>
+<p align="center"><b>Tu colección de vinilos en estanterías, con portadas, estadísticas y la misma colección en el móvil y en el ordenador.<br>Funciona sin conexión, se instala como una app y no necesita cuentas.</b></p>
 
-<p align="center">
-  <img src="docs/demo.gif" alt="Demostración: estanterías en carrusel, ficha de un disco, tabla, estadísticas y cambio de temas" width="860">
-</p>
+<p align="center"><img src="docs/estanterias.png" alt="Estanterías con los discos" width="860"></p>
 
-> **Probar la demo:** abre el [enlace en vivo](https://ivanchux.github.io/inventario-vinilos/) y pulsa el botón 🧪 para cargar una colección de ejemplo sin rellenar nada a mano.
+> Nació para digitalizar la colección de vinilos de mi padre (varios cientos de discos apuntados a mano desde los años 80). La versión 2 se rehízo por dentro para que **no se pueda perder ni un disco**: lo que pasó con la versión anterior está explicado más abajo.
 
-> Nació para digitalizar la colección de vinilos de mi padre (varios cientos de discos apuntados a mano desde los años 80) y ha acabado siendo un pequeño estudio de diseño de interfaz, PWA y modelado de datos sin backend.
+## Qué hace
 
-## Funcionalidades
+**Organizar**
+- Estanterías con los discos en carrusel. Se ordenan a mano (arrastrando, en el ordenador), por artista, año, título o los más recientes.
+- Vista de **tabla** ordenable y exportable a Excel, y vista de **estadísticas** (géneros, décadas, artistas, formatos, valoraciones, valor estimado).
+- Búsqueda por título, artista, género, año o etiqueta; filtros «Los tengo / Los quiero» y por género.
 
-**Organizar la colección**
-- **Estanterías arrastrables**: agrupa los discos por artista (o como quieras) en carruseles horizontales. Arrastra un disco para reordenarlo o moverlo a otra estantería; el orden puede ser manual o automático por año o título.
-- **Tres vistas**: estanterías, tabla ordenable y una sección de detalle con gráficos por género, década, artistas, formato y valoraciones.
-- **Filtros y búsqueda** por texto, género y estado (lo tengo / lo quiero), más un botón 🎲 que sugiere un disco al azar.
+**Añadir discos sin esfuerzo**
+- Escribe el título y el artista y pulsa **Buscar datos y portada**: la app consulta [MusicBrainz](https://musicbrainz.org) y [Cover Art Archive](https://coverartarchive.org) y rellena año, género y portada.
+- O haz una foto a la portada con el móvil: se comprime sola.
+- «Guardar y añadir otro» para meter muchos discos seguidos.
 
-**Añadir y editar sin esfuerzo**
-- **Asistente guiado**: en vez de un formulario largo, pregunta una cosa cada vez (título, artista, portada). El formulario completo sigue disponible como "modo avanzado".
-- **Buscar portada en Google** con un clic, usando el título y el artista que ya has escrito, tanto al crear como al abrir un disco existente.
-- **Fotos comprimidas automáticamente** al subirlas, para que miles de portadas no saturen el almacenamiento.
-- **Diálogos propios y teclado**: confirmaciones con la estética de la app (sin `alert`/`confirm` del navegador), Enter para avanzar y Escape para cerrar.
+**Cada disco, con su ficha**
+- Portada con el vinilo del color real, valoración con un toque, precio, estado, fecha de compra, canciones, etiquetas y notas.
+- Escuchar un archivo de audio propio desde la ficha (el vinilo gira) y enlace a YouTube.
+- **Resumen del año** tipo *Wrapped* y botón **Sorpréndeme**.
 
-**Cada disco, con detalle**
-- Ficha independiente del formulario, con el vinilo animado: valoración, precio, color del vinilo, tracklist, etiquetas propias y notas.
-- **Audio local**: si tienes la canción descargada, se reproduce ahí mismo y el vinilo gira al ritmo de la reproducción. Enlace a YouTube opcional.
-
-**Estadísticas y recuerdos**
-- Resumen del valor estimado, géneros y décadas dominantes.
-- **Resumen anual estilo *Wrapped***, con aviso automático cada 365 días.
-
-**Personalización**
-- **Cuatro temas de color** (Ámbar, Medianoche, Verde Vinilo y Synthwave) que se aplican al instante y se recuerdan.
-
-**Datos y seguridad**
-- **Exportar / importar** en JSON para copias de seguridad o para mover la colección entre dispositivos.
-- **Copias automáticas** 🛟 dentro del navegador: una al día y otra antes de importar, restaurar, cargar el ejemplo o borrar muchos discos de golpe (se guardan las 10 últimas y se restauran con un clic).
-- **A prueba de fallos del navegador**: si al abrir no se puede leer la colección, la app lo avisa y no escribe nada; nunca guarda una colección vacía encima de la buena. Si la colección se cambia desde otra pestaña o desde la app instalada, se pone al día sola en vez de pisar los cambios.
-- **Almacenamiento persistente** (`navigator.storage.persist()`) y recordatorio de exportar una copia cada 30 días.
-- **PWA instalable y offline** (service worker; siempre carga la versión más reciente cuando hay conexión).
-- **Sin backend, sin cuentas, sin analíticas**: todo vive en IndexedDB, en el propio dispositivo.
-
-## Capturas
+**Tus datos, a salvo**
+- **Sincronización entre dispositivos** con tu propio servidor, **cifrada en el dispositivo** (el servidor no puede leer nada). Se fusiona disco a disco: lo que apuntas en el móvil aparece en el ordenador y al revés, portadas incluidas.
+- **Buscador de discos repetidos** para unir los que se apuntaron dos veces.
+- **Copias automáticas** en el propio dispositivo (una al día y antes de cada cambio grande), restaurables con un clic.
+- **Copia de seguridad** en un archivo (con portadas) y recordatorio si hace tiempo que no se hace. Importar permite **añadir** o **sustituir**.
+- Cinco temas de color, incluido uno claro.
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/estanterias.png" alt="Estanterías en carrusel"><br><sub><b>Estanterías</b>: carruseles que se desplazan y se reordenan arrastrando.</sub></td>
-    <td width="50%"><img src="docs/ficha.png" alt="Ficha de un disco"><br><sub><b>Ficha</b>: valoración, tracklist, etiquetas, audio local y búsqueda de portada.</sub></td>
+    <td width="50%"><img src="docs/ficha.png" alt="Ficha de un disco"><br><sub><b>Ficha</b>: portada, vinilo, valoración y datos.</sub></td>
+    <td width="50%"><img src="docs/editor.png" alt="Añadir un disco"><br><sub><b>Añadir</b>: busca los datos y la portada por ti.</sub></td>
   </tr>
   <tr>
-    <td><img src="docs/asistente.png" alt="Asistente para añadir un disco"><br><sub><b>Asistente</b>: añadir un disco paso a paso, con búsqueda de portada integrada.</sub></td>
-    <td><img src="docs/detalle.png" alt="Sección de estadísticas"><br><sub><b>Detalle</b>: estadísticas por género, década, artistas y más.</sub></td>
+    <td><img src="docs/tabla.png" alt="Vista de tabla"><br><sub><b>Tabla</b>: ordenable y exportable a Excel.</sub></td>
+    <td><img src="docs/estadisticas.png" alt="Estadísticas"><br><sub><b>Estadísticas</b> de toda la colección.</sub></td>
   </tr>
   <tr>
-    <td><img src="docs/tabla.png" alt="Vista de tabla"><br><sub><b>Tabla</b>: vista ordenable para revisar muchos discos de un vistazo.</sub></td>
-    <td><img src="docs/resumen-anual.png" alt="Resumen anual"><br><sub><b>Resumen anual</b>: un repaso animado de tu año en discos.</sub></td>
+    <td><img src="docs/movil.png" alt="La app en el móvil" width="300"><br><sub><b>Móvil</b>: navegación inferior y botón de añadir siempre a mano.</sub></td>
+    <td><img src="docs/sincronizar.png" alt="Sincronizar dispositivos"><br><sub><b>Sincronizar</b> el móvil y el ordenador.</sub></td>
   </tr>
 </table>
 
-### Temas de color
+> Las portadas de las capturas son ilustraciones abstractas generadas para la demo, no portadas reales.
 
-<p align="center"><img src="docs/temas.png" alt="Los cuatro temas de color: Ámbar, Medianoche, Verde Vinilo y Synthwave" width="860"></p>
+## Por qué no se pierden datos
 
-### En el móvil
+La versión 1 guardaba toda la colección como un único bloque. Si el navegador fallaba un instante al leerlo (pasa en Safari para iPhone al volver a una web tras un rato), la app arrancaba vacía y **guardaba ese vacío encima de la colección buena**. Además, nada impedía que el navegador borrase los datos de una web poco usada. La versión 2:
 
-<p align="center"><img src="docs/movil.png" alt="La app en un iPhone" width="260"></p>
+| Riesgo | Cómo se evita |
+|---|---|
+| Un fallo al leer deja la app vacía y pisa los datos | Si no puede leer, reintenta y, si sigue fallando, **avisa y no escribe nada**. |
+| Una ventana pisa los cambios de otra | Cada disco se guarda por separado; las demás ventanas se actualizan solas. |
+| El navegador borra los datos por su cuenta | Pide almacenamiento persistente, sincroniza con el servidor y recuerda hacer copias. |
+| Un error al importar o restaurar | Antes de cualquier cambio grande se guarda una **copia automática** restaurable. |
+| Actualizar la app | La migración desde la versión 1 **no borra el original** y deja una copia de antes del cambio. |
 
-> Las portadas que aparecen en las capturas son ilustraciones abstractas generadas para la demo, no portadas reales de discos.
+Todo esto está cubierto por pruebas automáticas que se ejecutan en GitHub antes de cada publicación (`tests/e2e.py`, con un navegador real).
 
 ## Instalarla como app
 
-- **iPhone (Safari)**: abre la demo → Compartir → *Añadir a pantalla de inicio*.
+- **iPhone (Safari)**: Compartir → *Añadir a pantalla de inicio*. Ábrela siempre desde ese icono: en iPhone, Safari y la app instalada guardan los datos por separado.
 - **Android / ordenador (Chrome o Edge)**: menú del navegador → *Instalar aplicación*.
 
-Tras la primera visita funciona sin conexión.
+## Sincronización: montar el servidor
 
-## Stack
+El servidor está en [`server/`](server/): Node ≥ 18, **sin dependencias**, un solo archivo. Guarda la colección cifrada y un número de versión para que dos dispositivos no se pisen.
 
-Vanilla JS + HTML + CSS en un único archivo autocontenido: sin frameworks, sin dependencias, sin build step. Persistencia en **IndexedDB** (con migración automática desde versiones anteriores que usaban `localStorage`), PWA con `manifest.json` y Service Worker, y despliegue automático a GitHub Pages con GitHub Actions en cada push a `main`.
+**En Coolify (o cualquier Docker):**
 
-Elegido a propósito: cero dependencias y cero backend que mantener, y cualquiera puede abrir `index.html` y entender el código de arriba a abajo.
+1. Nuevo recurso desde este repositorio, tipo de build **Dockerfile**, ruta `server/Dockerfile`, contexto la raíz.
+2. Puerto **8787**, volumen persistente en **`/data`**.
+3. Variables: `CREATE_PASSWORD` (para que nadie más cree colecciones en tu servidor) y `ALLOWED_ORIGIN=https://ivanchux.github.io`.
+4. Dominio con https (Coolify lo gestiona). El contenedor sirve también la app, así que puedes usarla directamente desde ese dominio.
 
-## Cómo probarlo en local
+```bash
+# En local
+CREATE_PASSWORD=una-clave node server/server.js      # http://localhost:8787
+# Con Docker
+docker build -f server/Dockerfile -t vinilos .
+docker run -d -p 8787:8787 -v vinilos-data:/data -e CREATE_PASSWORD=una-clave vinilos
+```
+
+Si pones la dirección del servidor en [`js/config.js`](js/config.js), la app ya la trae rellenada.
+
+**En la app**: botón de la nube → «Es el primero» en un dispositivo (dirección + contraseña). Te da un **código** y un **enlace**: ábrelo en el otro dispositivo y listo. Si los dos ya tenían discos, se juntan y la app ofrece unir los repetidos.
+
+| Variable | Para qué |
+|---|---|
+| `PORT` | Puerto (8787) |
+| `DATA_DIR` | Carpeta de datos (`/data` en Docker) |
+| `CREATE_PASSWORD` | Contraseña para crear colecciones nuevas |
+| `ALLOWED_ORIGIN` | Orígenes permitidos, separados por comas |
+| `STATIC_DIR` | Si se indica, sirve también la app |
+| `MAX_VAULT_MB` / `MAX_BLOB_MB` | Límites de tamaño (8 y 4 MB) |
+
+## Stack y estructura
+
+HTML, CSS y JavaScript con módulos nativos, sin frameworks ni paso de compilación. Datos en **IndexedDB**, cifrado con **Web Crypto** (AES-GCM + PBKDF2), PWA con service worker.
+
+```
+├── index.html            estructura de la página
+├── css/app.css           estilos y temas
+├── js/
+│   ├── app.js            arranque, estado y vistas (estanterías, tabla, estadísticas)
+│   ├── dialogos.js       ficha, editor, menú, sincronización, copias…
+│   ├── store.js          capa de datos (IndexedDB, migración, copias)
+│   ├── sync.js           sincronización cifrada y fusión
+│   ├── portadas.js       compresión de fotos y búsqueda en MusicBrainz
+│   └── ui.js, iconos.js, util.js, config.js
+├── server/               servidor de sincronización + Dockerfile
+├── tests/e2e.py          pruebas con navegador real
+└── service-worker.js     funcionamiento sin conexión
+```
+
+## Probarlo en local
 
 ```bash
 git clone https://github.com/ivanchux/inventario-vinilos.git
 cd inventario-vinilos
-python3 -m http.server 8000
-# abre http://localhost:8000
+node server/server.js              # sirve la app y la sincronización en http://localhost:8787
+# o solo la app: python3 -m http.server 8000
+
+# pruebas
+node --test server/server.test.js
+pip install playwright && python -m playwright install chromium && python tests/e2e.py
 ```
-
-Servirlo por `http://` (en vez de abrir el archivo con doble clic) evita limitaciones del navegador con el Service Worker y con `file://`.
-
-## Estructura
-
-```
-├── index.html              # toda la app: HTML + CSS + JS
-├── manifest.json           # metadatos de la PWA (nombre, iconos, colores)
-├── service-worker.js       # caché offline
-├── icons/                  # iconos para escritorio, iOS y Android
-├── docs/                   # banner, capturas y GIF de este README
-└── .github/workflows/      # despliegue automático a GitHub Pages
-```
-
-## Roadmap
-
-- [ ] Selección múltiple para mover o borrar varios discos a la vez
-- [ ] Filtros combinados (década + formato + condición)
-- [ ] Reordenar estanterías con el teclado, no solo arrastrando (accesibilidad)
-- [ ] Generalizar el modelo de datos para otras colecciones (libros, cómics, cartas...)
 
 ## 📜 Licencia
 
