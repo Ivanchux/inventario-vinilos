@@ -1,4 +1,4 @@
-<h1 align="center">📀 Inventario de Vinilos</h1>
+<p align="center"><img src="docs/banner.png" alt="Inventario de Vinilos: tus discos en estanterías, con portadas y la misma colección en el móvil y en el ordenador" width="100%"></p>
 
 <p align="center">
   <a href="https://ivanchux.github.io/inventario-vinilos/"><img alt="Abrir la app" src="https://img.shields.io/badge/abrir-la%20app-e8a54b?style=for-the-badge"></a>
