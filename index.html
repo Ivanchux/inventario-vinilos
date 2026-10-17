@@ -162,12 +162,13 @@ tbody tr:hover{background:#ffffff08;}
 <button class="iconBtn" onclick="sorprendeme()" title="Sorpréndeme">🎲</button>
 <button class="iconBtn" onclick="abrirStats()">📊</button>
 <button class="iconBtn" onclick="abrirWrapped(true)" title="Resumen anual">🎁</button>
-<button class="iconBtn" onclick="exportarJSON()">⬇️</button>
-<button class="iconBtn" onclick="document.getElementById('importFile').click()">⬆️</button>
+<button class="iconBtn" onclick="exportarJSON()" title="Exportar copia de seguridad">⬇️</button>
+<button class="iconBtn" onclick="document.getElementById('importFile').click()" title="Importar copia de seguridad">⬆️</button>
+<button class="iconBtn" onclick="abrirCopias()" title="Copias automáticas">🛟</button>
 <input type="file" id="importFile" accept=".json,application/json" style="display:none">
 <button class="iconBtn" onclick="abrirTemas()" title="Cambiar colores">🎨</button>
 <button class="iconBtn" onclick="abrirEstModal()">＋ Estantería</button>
-<button class="iconBtn" onclick="cargarDemo()" title="Cargar colección de ejemplo">🧪</button>
+<button class="iconBtn" id="btnDemo" onclick="cargarDemo()" title="Cargar colección de ejemplo">🧪</button>
 </header>
 <div class="filtros">
 <div class="pillgroup" id="pillEstado">
@@ -185,6 +186,16 @@ tbody tr:hover{background:#ffffff08;}
 <span style="flex:1;font-weight:700;">🎁 Tu resumen anual ya está listo</span>
 <button onclick="abrirWrapped()" style="background:var(--surface);color:var(--accent);font-weight:700;">Ver</button>
 <button onclick="document.getElementById('wrappedBanner').style.display='none'" style="background:transparent;border:none;color:#1c130c;font-weight:700;cursor:pointer;">✕</button>
+</div>
+<div id="backupBanner" style="display:none;margin:10px 20px 0;padding:10px 14px;background:var(--panel2);border:1px solid var(--accent);border-radius:10px;font-size:.82rem;align-items:center;gap:10px;">
+<span style="flex:1;">💾 <span id="backupTexto"></span></span>
+<button onclick="exportarJSON()" style="background:var(--accent);color:#1c130c;font-weight:700;">Guardar copia</button>
+<button onclick="posponerBackup()" style="background:transparent;border:none;color:var(--muted);cursor:pointer;" title="Recordar dentro de una semana">✕</button>
+</div>
+<div id="errorCarga" style="display:none;margin:16px 20px;padding:16px;background:var(--panel);border:1px solid var(--danger);border-radius:12px;font-size:.9rem;line-height:1.5;">
+<b style="color:var(--danger);">No se ha podido leer tu colección.</b><br>
+No se ha borrado nada y la app no va a guardar cambios hasta que pueda leerla bien. Cierra la app del todo (también desde la multitarea del móvil) y vuelve a abrirla. <span id="errorCargaDetalle" style="color:var(--muted);"></span>
+<div style="margin-top:12px;"><button onclick="iniciar()" style="background:var(--accent);color:#1c130c;font-weight:700;">Reintentar</button></div>
 </div>
 <div id="estanterias"></div>
 <div id="tablaWrap"><table id="tablaVista">
@@ -222,6 +233,15 @@ tbody tr:hover{background:#ffffff08;}
 
 <div class="overlay" id="zoomBg" onclick="this.classList.remove('show')"><img id="zoomImg" style="max-width:92vw;max-height:92vh;border-radius:8px;"></div>
 <div id="toast"><span id="toastMsg"></span><button onclick="deshacerBorrado()">Deshacer</button></div>
+
+<div class="overlay" id="copiasBg">
+<div class="box">
+<h2>🛟 Copias automáticas</h2>
+<p style="color:var(--muted);font-size:.8rem;line-height:1.4;margin:6px 0 10px;">Se guardan en este navegador: una al día y otra antes de importar, cargar el ejemplo, restaurar o borrar muchos discos de golpe. Se conservan las últimas 10. Para tener una copia fuera del dispositivo, usa ⬇️.</p>
+<div id="copiasLista"></div>
+<div class="actions"><button onclick="cerrarCopias()" style="width:100%;">Cerrar</button></div>
+</div>
+</div>
 
 <div class="overlay" id="confirmBg">
 <div class="box" style="text-align:center;">
@@ -428,57 +448,127 @@ function cerrarTemas(){ document.getElementById('temaBg').classList.remove('show
 })();
 
 const DB_KEY='vinilos_db';
+const SNAP_PREFIX='vinilos_snap_';   // copias automáticas guardadas dentro de IndexedDB
+const SNAP_MAX=10;                   // cuántas copias automáticas se conservan
 let db = {discos:[],estanterias:[]};
 let portadaBase64=null, filtroEstado='todos', vista='estanterias', sortCol='titulo', sortDir=1;
 
+/* Estado de la capa de datos.
+   - estadoCarga 'error': no se pudo leer lo guardado. Mientras dure, NO se escribe nada,
+     para que un fallo puntual del navegador nunca acabe pisando la colección buena.
+   - revCargada: versión de la colección que tiene esta pestaña. Si otra pestaña o la app
+     instalada guarda antes, la versión del disco ya no coincide y esta pestaña no la pisa. */
+let estadoCarga='ok';
+let revCargada=-1;   // -1 = esta pestaña no encontró nada guardado al abrirse
+let persistente=null;
+
 const IDB_NOMBRE='vinilosApp', IDB_ALMACEN='kv';
+function esperar(ms){ return new Promise(r=>setTimeout(r,ms)); }
 function idbAbrir(){
   return new Promise((resolve,reject)=>{
     if(!window.indexedDB){ reject(new Error('sin-indexeddb')); return; }
-    const req=indexedDB.open(IDB_NOMBRE,1);
+    let req;
+    try{ req=indexedDB.open(IDB_NOMBRE,1); }catch(e){ reject(e); return; }
+    const plazo=setTimeout(()=>reject(new Error('IndexedDB no responde')),4000);
     req.onupgradeneeded=()=>{ req.result.createObjectStore(IDB_ALMACEN); };
-    req.onsuccess=()=>resolve(req.result);
-    req.onerror=()=>reject(req.error);
+    req.onsuccess=()=>{ clearTimeout(plazo); const c=req.result; c.onversionchange=()=>c.close(); resolve(c); };
+    req.onerror=()=>{ clearTimeout(plazo); reject(req.error); };
+    req.onblocked=()=>{ clearTimeout(plazo); reject(new Error('IndexedDB bloqueada por otra ventana')); };
   });
 }
-async function idbLeer(clave){
+async function idbOperar(modo, fn){
   const conn=await idbAbrir();
   return new Promise((resolve,reject)=>{
-    const tx=conn.transaction(IDB_ALMACEN,'readonly');
-    const req=tx.objectStore(IDB_ALMACEN).get(clave);
-    req.onsuccess=()=>resolve(req.result);
-    req.onerror=()=>reject(req.error);
+    let tx, resultado;
+    try{ tx=conn.transaction(IDB_ALMACEN,modo); }catch(e){ conn.close(); reject(e); return; }
+    try{ resultado=fn(tx.objectStore(IDB_ALMACEN)); }catch(e){ try{tx.abort();}catch(_){} conn.close(); reject(e); return; }
+    tx.oncomplete=()=>{ conn.close(); resolve(resultado && 'result' in resultado ? resultado.result : resultado); };
+    tx.onerror=()=>{ conn.close(); reject(tx.error); };
+    tx.onabort=()=>{ conn.close(); reject(tx.error||new Error('transacción cancelada')); };
   });
 }
-async function idbEscribir(clave,valor){
-  const conn=await idbAbrir();
-  return new Promise((resolve,reject)=>{
-    const tx=conn.transaction(IDB_ALMACEN,'readwrite');
-    tx.objectStore(IDB_ALMACEN).put(valor,clave);
-    tx.oncomplete=()=>resolve(true);
-    tx.onerror=()=>reject(tx.error);
+const idbLeer=(clave)=>idbOperar('readonly', st=>st.get(clave));
+const idbClaves=()=>idbOperar('readonly', st=>st.getAllKeys());
+const idbBorrar=(clave)=>idbOperar('readwrite', st=>{ st.delete(clave); });
+async function conReintentos(fn, intentos){
+  let ultimo;
+  for(let i=0;i<(intentos||3);i++){
+    try{ return await fn(); }catch(e){ ultimo=e; await esperar(400*(i+1)); }
+  }
+  throw ultimo;
+}
+
+/* Guarda la colección en una sola transacción:
+   lee lo que hay, comprueba que nadie lo ha cambiado desde que esta pestaña lo leyó,
+   hace una copia automática de lo anterior si toca y escribe lo nuevo. O todo o nada. */
+function idbGuardarColeccion(valor, revEsperada, hacerCopia){
+  return idbOperar('readwrite', st=>{
+    const salida={resultado:'ok', copia:false};
+    const g=st.get(DB_KEY);
+    g.onsuccess=()=>{
+      const anterior=g.result;
+      const revDisco=(anterior && anterior._rev)||0;
+      if(anterior && revDisco!==revEsperada){ salida.resultado='conflicto'; return; }
+      const nAntes=anterior && Array.isArray(anterior.discos) ? anterior.discos.length : 0;
+      const nAhora=valor.discos.length;
+      const caidaFuerte = nAntes>0 && (nAhora===0 || nAntes-nAhora>=5);
+      if(anterior && nAntes>0 && (hacerCopia(caidaFuerte))){
+        st.put(anterior, SNAP_PREFIX+new Date().toISOString());
+        salida.copia=true;
+      }
+      st.put(valor, DB_KEY);
+    };
+    return salida;
   });
 }
+
 const canalDB = ('BroadcastChannel' in window) ? new BroadcastChannel('vinilos_db_channel') : null;
 if(canalDB){
-  canalDB.onmessage = e=>{
-    if(e.data==='cambio'){
-      avisar('Esta colección se ha modificado en otra pestaña o ventana. Recarga la página antes de seguir para no perder cambios.');
-    }
-  };
+  canalDB.onmessage = e=>{ if(e.data==='cambio') recargarDesdeDisco(); };
 }
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') recargarDesdeDisco(); });
+
+function hayFormularioAbierto(){
+  return ['modalBg','wizardBg','estBg','confirmBg'].some(id=>{ const el=document.getElementById(id); return el && el.classList.contains('show'); });
+}
+/* Si otra pestaña o la app instalada ha guardado, esta pestaña se pone al día sola. */
+let recargaPendiente=false;
+async function recargarDesdeDisco(){
+  if(estadoCarga!=='ok') return;
+  if(hayFormularioAbierto()){ recargaPendiente=true; return; }
+  recargaPendiente=false;
+  try{
+    const enDisco=await idbLeer(DB_KEY);
+    if(!enDisco || !Array.isArray(enDisco.discos)) return;
+    if((enDisco._rev||0)===revCargada) return;
+    db=enDisco; revCargada=enDisco._rev||0;
+    if(!Array.isArray(db.estanterias)) db.estanterias=[];
+    renderTodo();
+  }catch(e){ /* se reintentará la próxima vez */ }
+}
+
+/* Lee la colección. Devuelve {estado:'ok'|'vacio'|'error', datos, origen}.
+   'vacio' solo cuando se ha podido leer y de verdad no hay nada. */
 async function cargarDB(){
+  let errorIDB=null;
   try{
-    const guardado = await idbLeer(DB_KEY);
-    if(guardado) return guardado;
-  }catch(e){ /* IndexedDB no disponible todavía, seguimos con el siguiente intento */ }
-  try{
-    const antiguo = JSON.parse(localStorage.getItem(DB_KEY)||'null');
-    if(antiguo) return antiguo;
-  }catch(e){
-    setTimeout(()=>avisar('Los datos guardados en este navegador no se han podido leer (puede que se corrompieran). Se ha empezado con una colección vacía para que la app vuelva a funcionar. Si tienes un backup exportado, impórtalo con ⬆️.'),300);
+    const guardado = await conReintentos(()=>idbLeer(DB_KEY));
+    if(guardado && Array.isArray(guardado.discos)) return {estado:'ok', datos:guardado, origen:'idb'};
+    if(guardado) errorIDB=new Error('Los datos guardados tienen un formato desconocido');
+  }catch(e){ errorIDB=e; }
+  // Si IndexedDB ha fallado no se mira nada más: localStorage podría tener una versión más vieja.
+  if(errorIDB) return {estado:'error', error:errorIDB};
+  // Versiones anteriores al 30-09-2026 guardaban en localStorage. Esa copia ya no se borra nunca.
+  let crudo=null;
+  try{ crudo=localStorage.getItem(DB_KEY); }catch(e){}
+  if(crudo){
+    try{
+      const antiguo=JSON.parse(crudo);
+      if(antiguo && Array.isArray(antiguo.discos)) return {estado:'ok', datos:antiguo, origen:'localStorage'};
+    }catch(e){}
+    return {estado:'error', error:new Error('La copia antigua de localStorage no se puede leer')};
   }
-  return {discos:[],estanterias:[]};
+  return {estado:'vacio', datos:{discos:[],estanterias:[]}, origen:'nuevo'};
 }
 const GENEROS_ESTANDAR=['Rock','Pop','Jazz','Blues','Soul','Funk','Disco','Reggae','Hip Hop','Electrónica','Clásica','Ópera','Country','Folk','Metal','Punk','Latin / Salsa','R&B','Gospel','Flamenco','Bandas Sonoras','Experimental'];
 
@@ -514,22 +604,120 @@ function datosDemo(){
   };
 }
 async function cargarDemo(){
-  const ok = await preguntar('Esto sustituirá tu colección actual por una colección de ejemplo (16 discos), pensada para probar la app.', 'Sí, cargar ejemplo', 'Cancelar');
+  if(db.discos.length>0){ await avisar('La colección de ejemplo solo se puede cargar con la colección vacía, para no perder tus discos.'); return; }
+  const ok = await preguntar('Se cargará una colección de ejemplo (16 discos), pensada para probar la app.', 'Sí, cargar ejemplo', 'Cancelar');
   if(!ok) return;
-  db=datosDemo();
-  migrar(); guardarDB(); renderTodo();
+  const rev=db._rev;
+  db=datosDemo(); db._rev=rev;
+  migrar(); guardarDB({copia:true}); renderTodo();
 }
 
-async function guardarDB(){
+/* Los guardados se ponen en cola para que nunca se pisen entre sí. */
+let colaGuardado=Promise.resolve(true);
+function guardarDB(opciones){
+  colaGuardado = colaGuardado.then(()=>guardarDBAhora(opciones||{}), ()=>guardarDBAhora(opciones||{}));
+  return colaGuardado;
+}
+async function guardarDBAhora(opciones){
+  if(estadoCarga!=='ok'){
+    avisar('No se ha guardado el cambio: la app no ha podido leer tu colección al abrirse. Cierra la app del todo y vuelve a abrirla.');
+    return false;
+  }
+  const hoy=new Date().toISOString().slice(0,10);
+  let ultimaCopia=null;
+  try{ ultimaCopia=localStorage.getItem('vinilos_snap_dia'); }catch(e){}
+  const valor={...db, _rev:Math.max(revCargada,0)+1, _guardado:new Date().toISOString()};
   try{
-    await idbEscribir(DB_KEY, db);
-    try{ localStorage.removeItem(DB_KEY); }catch(e){}
+    const r = await conReintentos(()=>idbGuardarColeccion(valor, revCargada,
+      caidaFuerte=> opciones.copia || caidaFuerte || ultimaCopia!==hoy));
+    if(r.resultado==='conflicto'){
+      await avisar('La colección se ha cambiado desde otra ventana o desde la app instalada. Cargo la versión más reciente; repite el último cambio si no aparece.');
+      await recargarDesdeDisco();
+      return false;
+    }
+    revCargada=valor._rev; db._rev=revCargada;
+    if(r.copia){ try{ localStorage.setItem('vinilos_snap_dia', hoy); }catch(e){} podarCopias(); }
     if(canalDB) canalDB.postMessage('cambio');
     return true;
   }catch(e){
     avisar('No se ha podido guardar en el almacenamiento del navegador. Comprueba que no estés en modo incógnito/privado y que el navegador tenga permiso para guardar datos en este sitio.');
     return false;
   }
+}
+
+/* ---------- Copias automáticas ---------- */
+async function listarCopias(){
+  const claves=(await idbClaves()).filter(k=>typeof k==='string' && k.startsWith(SNAP_PREFIX));
+  return claves.sort().reverse();
+}
+async function podarCopias(){
+  try{
+    const claves=await listarCopias();
+    for(const k of claves.slice(SNAP_MAX)) await idbBorrar(k);
+  }catch(e){}
+}
+async function abrirCopias(){
+  const lista=document.getElementById('copiasLista');
+  lista.innerHTML='<p style="color:var(--muted);font-size:.85rem;">Cargando…</p>';
+  document.getElementById('copiasBg').classList.add('show');
+  try{
+    const claves=await listarCopias();
+    if(!claves.length){ lista.innerHTML='<p style="color:var(--muted);font-size:.85rem;">Todavía no hay copias. Se hace una al día, y otra antes de importar, cargar el ejemplo o borrar muchos discos de golpe.</p>'; return; }
+    const filas=[];
+    for(const k of claves){
+      const c=await idbLeer(k);
+      const fecha=new Date(k.slice(SNAP_PREFIX.length));
+      const n=c && Array.isArray(c.discos) ? c.discos.length : 0;
+      filas.push(`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #ffffff12;">
+        <div style="flex:1;text-align:left;font-size:.85rem;">${esc(fecha.toLocaleString('es-ES',{dateStyle:'medium',timeStyle:'short'}))}<br><span style="color:var(--muted);">${n} discos</span></div>
+        <button onclick="restaurarCopia('${esc(k)}')">Restaurar</button></div>`);
+    }
+    lista.innerHTML=filas.join('');
+  }catch(e){ lista.innerHTML='<p style="color:var(--muted);font-size:.85rem;">No se han podido leer las copias.</p>'; }
+}
+function cerrarCopias(){ document.getElementById('copiasBg').classList.remove('show'); }
+async function restaurarCopia(clave){
+  const copia=await idbLeer(clave).catch(()=>null);
+  if(!copia || !Array.isArray(copia.discos)){ await avisar('Esa copia no se puede leer.'); return; }
+  const ok=await preguntar(`Se sustituirá la colección actual (${db.discos.length} discos) por esta copia (${copia.discos.length} discos). Antes se guarda una copia de lo que hay ahora.`, 'Sí, restaurar', 'Cancelar');
+  if(!ok) return;
+  const {_rev,_guardado,...datos}=copia;
+  db=datos; if(!db.estanterias) db.estanterias=[];
+  migrar(); await guardarDB({copia:true}); renderTodo(); cerrarCopias();
+}
+
+/* ---------- Protección frente al borrado del navegador y recordatorio de backup ---------- */
+async function pedirPersistencia(){
+  try{
+    if(!navigator.storage || !navigator.storage.persist) return;
+    persistente = await navigator.storage.persisted();
+    if(!persistente) persistente = await navigator.storage.persist();
+  }catch(e){ persistente=false; }
+}
+function comprobarBackup(){
+  if(db.discos.length<5) return;
+  let ultimo=0, pospuesto=0;
+  try{ ultimo=parseInt(localStorage.getItem('vinilos_ultimo_backup'))||0; pospuesto=parseInt(localStorage.getItem('vinilos_backup_pospuesto'))||0; }catch(e){}
+  const dia=86400000, ahora=Date.now();
+  if(ahora-pospuesto<7*dia) return;
+  if(ultimo && ahora-ultimo<30*dia) return;
+  document.getElementById('backupTexto').textContent = ultimo
+    ? `Hace ${Math.round((ahora-ultimo)/dia)} días de tu última copia de seguridad.`
+    : 'Aún no has guardado ninguna copia de seguridad fuera de este navegador.';
+  document.getElementById('backupBanner').style.display='flex';
+}
+function posponerBackup(){
+  try{ localStorage.setItem('vinilos_backup_pospuesto', String(Date.now())); }catch(e){}
+  document.getElementById('backupBanner').style.display='none';
+}
+function mostrarErrorCarga(err){
+  document.getElementById('errorCargaDetalle').textContent = err && err.message ? '('+err.message+')' : '';
+  document.getElementById('errorCarga').style.display='block';
+  document.getElementById('estanterias').style.display='none';
+}
+function ocultarErrorCarga(){
+  document.getElementById('errorCarga').style.display='none';
+  document.getElementById('estanterias').style.display='';
 }
 function tamanoDB(){
   const kb = Math.round(new Blob([JSON.stringify(db)]).size/1024);
@@ -601,7 +789,7 @@ function coincide(d,q){
   q=q.toLowerCase();
   return (d.titulo||'').toLowerCase().includes(q) || (d.artista||'').toLowerCase().includes(q) || (d.genero||'').toLowerCase().includes(q);
 }
-function renderTodo(){ renderEstanterias(); if(vista==='tabla') renderTabla(); if(vista==='detalle') renderDetalle(); }
+function renderTodo(){ const bd=document.getElementById('btnDemo'); if(bd) bd.style.display=db.discos.length?'none':''; if(recargaPendiente && !hayFormularioAbierto()){ recargarDesdeDisco(); } renderEstanterias(); if(vista==='tabla') renderTabla(); if(vista==='detalle') renderDetalle(); }
 
 function renderEstanterias(){
   document.getElementById('totalTop').textContent = db.discos.length ? '· '+db.discos.length : '';
@@ -897,6 +1085,7 @@ document.addEventListener('keydown', e=>{
     else if(abierto('zoomBg')) document.getElementById('zoomBg').classList.remove('show');
     else if(abierto('wrappedBg')) cerrarWrapped();
     else if(abierto('temaBg')) cerrarTemas();
+    else if(abierto('copiasBg')) cerrarCopias();
   }
 });
 
@@ -1036,7 +1225,8 @@ function abrirStats(){
     <div class="fichaDato">⭐ Artista con más discos: ${topArt?topArt[0]+' ('+topArt[1]+')':'—'}</div>
     <div class="fichaDato">🌟 Valoración media: ${media}${media!=='—'?' / 5':''} (${valorados.length} valorados)</div>
     <div class="fichaDato">✅ ${tengo} en colección · 🎯 ${n-tengo} en lista de deseos</div>
-    <div class="fichaDato">💾 Espacio usado: ${tamanoDB()} (con mucho margen: cientos de MB disponibles)</div>`;
+    <div class="fichaDato">💾 Espacio usado: ${tamanoDB()} (con mucho margen: cientos de MB disponibles)</div>
+    <div class="fichaDato">🛡️ ${persistente?'El navegador ha aceptado no borrar estos datos por su cuenta':'El navegador no garantiza conservar estos datos: instala la app y exporta copias ⬇️ de vez en cuando'}</div>`;
   document.getElementById('statsBg').classList.add('show');
 }
 function verDetalle(){ document.getElementById('statsBg').classList.remove('show'); document.querySelector('#pillVista [data-v="detalle"]').click(); }
@@ -1124,17 +1314,23 @@ function comprobarWrappedAnual(){
   if(ahora-referencia>=unAnio){ document.getElementById('wrappedBanner').style.display='flex'; }
 }
 
+function nombreBackup(){ return 'vinilos-backup-'+new Date().toISOString().slice(0,10)+'.json'; }
+function marcarBackup(){
+  try{ localStorage.setItem('vinilos_ultimo_backup', String(Date.now())); }catch(e){}
+  document.getElementById('backupBanner').style.display='none';
+}
 async function exportarJSON(){
   const data = JSON.stringify(db,null,2);
   try{
     const dl = window.claude ? await window.claude.use('downloads') : null;
-    if(dl){ await dl.save({filename:'vinilos-backup.json', data}); return; }
+    if(dl){ await dl.save({filename:nombreBackup(), data}); marcarBackup(); return; }
   }catch(e){ if(e && e.code==='declined') return; }
   try{
     const blob=new Blob([data],{type:'application/json'});
     const url=URL.createObjectURL(blob);
-    const a=document.createElement('a'); a.href=url; a.download='vinilos-backup.json';
+    const a=document.createElement('a'); a.href=url; a.download=nombreBackup();
     document.body.appendChild(a); a.click(); a.remove();
+    marcarBackup();
     setTimeout(()=>URL.revokeObjectURL(url),1000);
   }catch(e){ await avisar('No se pudo exportar el archivo en esta vista.'); }
 }
@@ -1144,11 +1340,12 @@ document.getElementById('importFile').onchange=e=>{
   r.onload=async ev=>{
     try{
       const parsed=JSON.parse(ev.target.result);
-      if(!parsed.discos) throw new Error();
+      if(!parsed || !Array.isArray(parsed.discos)) throw new Error();
       const ok = await preguntar('Esto sustituirá tu colección actual por la del archivo importado.', 'Sí, importar', 'Cancelar');
       if(ok){
-        db=parsed; if(!db.estanterias) db.estanterias=[];
-        migrar(); guardarDB(); renderTodo();
+        const {_rev,_guardado,...datos}=parsed;
+        db=datos; if(!Array.isArray(db.estanterias)) db.estanterias=[];
+        migrar(); await guardarDB({copia:true}); renderTodo();
       }
     }catch(err){ await avisar('El archivo no es un backup válido.'); }
   };
@@ -1156,11 +1353,23 @@ document.getElementById('importFile').onchange=e=>{
 };
 
 async function iniciar(){
-  db = await cargarDB();
+  const r = await cargarDB();
+  if(r.estado==='error'){
+    // No se escribe nada: así un fallo puntual al leer no puede borrar la colección.
+    estadoCarga='error';
+    mostrarErrorCarga(r.error);
+    return;
+  }
+  estadoCarga='ok'; ocultarErrorCarga();
+  db=r.datos; revCargada = r.origen==='idb' ? (db._rev||0) : -1;
+  if(!Array.isArray(db.estanterias)) db.estanterias=[];
   migrar();
   renderTodo();
   comprobarWrappedAnual();
-  guardarDB(); // completa la migración a IndexedDB si los datos venían de localStorage
+  comprobarBackup();
+  if(r.origen==='localStorage') guardarDB({copia:true}); // pasa los datos antiguos a IndexedDB (la copia de localStorage se deja intacta)
+  pedirPersistencia();
+  podarCopias();
 }
 iniciar();
 if('serviceWorker' in navigator){

@@ -49,6 +49,9 @@
 
 **Datos y seguridad**
 - **Exportar / importar** en JSON para copias de seguridad o para mover la colección entre dispositivos.
+- **Copias automáticas** 🛟 dentro del navegador: una al día y otra antes de importar, restaurar, cargar el ejemplo o borrar muchos discos de golpe (se guardan las 10 últimas y se restauran con un clic).
+- **A prueba de fallos del navegador**: si al abrir no se puede leer la colección, la app lo avisa y no escribe nada; nunca guarda una colección vacía encima de la buena. Si la colección se cambia desde otra pestaña o desde la app instalada, se pone al día sola en vez de pisar los cambios.
+- **Almacenamiento persistente** (`navigator.storage.persist()`) y recordatorio de exportar una copia cada 30 días.
 - **PWA instalable y offline** (service worker; siempre carga la versión más reciente cuando hay conexión).
 - **Sin backend, sin cuentas, sin analíticas**: todo vive en IndexedDB, en el propio dispositivo.
 
