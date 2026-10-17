@@ -23,6 +23,9 @@ from pathlib import Path
 from playwright.async_api import async_playwright
 
 RAIZ = Path(__file__).resolve().parent.parent
+# Para probar contra otro servidor de sincronización (p. ej. el Worker de Cloudflare en local):
+#   SERVIDOR_SYNC=http://127.0.0.1:8788 python tests/e2e.py
+SYNC = os.environ.get("SERVIDOR_SYNC", "")
 FALLOS = []
 
 
@@ -183,7 +186,7 @@ async def main():
             await esperar(pp, "document.querySelectorAll('.tarjeta .funda img').length === 1")
 
             await pp.click("#btnSync")
-            await pp.fill("#y_url", base)
+            await pp.fill("#y_url", SYNC or base)
             await pp.fill("#y_pass", "clave-e2e")
             await pp.click("#y_ok")
             await pp.wait_for_selector(".codigo", timeout=15000)

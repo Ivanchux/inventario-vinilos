@@ -224,7 +224,9 @@ export async function sincronizar() {
       if (!meta.empty) {
         const remoto = await descifrarJSON((await api('GET', '/api/vault')).data, cfg.code);
         firmaRemota = firma(remoto);
-        if (meta.rev !== cfg.rev) objetivo = fusionar(local, remoto);
+        // Siempre se fusiona con lo del servidor, aunque la versión coincida:
+        // si dos guardados se cruzaron, aquí se vuelven a juntar.
+        objetivo = fusionar(local, remoto);
       }
       if (firma(objetivo) !== firma(local)) cambios += await store.aplicarFusion(objetivo);
       if (firmaRemota !== null && firmaRemota === firma(objetivo)) {

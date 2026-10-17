@@ -76,35 +76,59 @@ Todo esto está cubierto por pruebas automáticas que se ejecutan en GitHub ante
 
 ## Sincronización: montar el servidor
 
-El servidor está en [`server/`](server/): Node ≥ 18, **sin dependencias**, un solo archivo. Guarda la colección cifrada y un número de versión para que dos dispositivos no se pisen.
+Hace falta un pequeño servidor que guarde la colección **cifrada** (no puede leer nada) y un número de versión para que dos dispositivos no se pisen. Hay dos versiones con la misma API; elige una.
 
-**En Coolify (o cualquier Docker):**
+### Opción A · Cloudflare Workers (gratis, recomendada)
 
-1. Nuevo recurso desde este repositorio, tipo de build **Dockerfile**, ruta `server/Dockerfile`, contexto la raíz.
-2. Puerto **8787**, volumen persistente en **`/data`**.
-3. Variables: `CREATE_PASSWORD` (para que nadie más cree colecciones en tu servidor) y `ALLOWED_ORIGIN=https://ivanchux.github.io`.
-4. Dominio con https (Coolify lo gestiona). El contenedor sirve también la app, así que puedes usarla directamente desde ese dominio.
+Con una cuenta gratuita de Cloudflare basta: el plan gratuito de Workers y KV sobra para una colección familiar.
+
+**Desde la terminal** (necesita Node ≥ 18):
 
 ```bash
-# En local
+cd server/cloudflare
+npx wrangler login                          # abre el navegador para entrar en tu cuenta
+npx wrangler kv namespace create VINILOS    # copia el "id" que imprime en wrangler.toml
+npx wrangler secret put CREATE_PASSWORD     # escribe una contraseña tuya
+npx wrangler deploy                         # te da la dirección: https://vinilos-sync.<tu-subdominio>.workers.dev
+```
+
+**O desde el panel de Cloudflare**, sin instalar nada:
+
+1. *Storage & Databases → KV → Create*: crea un espacio llamado `VINILOS`.
+2. *Workers & Pages → Create → Worker*: ponle de nombre `vinilos-sync`, pulsa *Deploy*, luego *Edit code*, sustituye todo por el contenido de [`server/cloudflare/worker.js`](server/cloudflare/worker.js) y vuelve a pulsar *Deploy*.
+3. En el Worker, *Settings → Bindings → Add → KV namespace*: nombre de la variable `VINILOS`, espacio `VINILOS`.
+4. *Settings → Variables and Secrets*: añade `ALLOWED_ORIGIN` (texto) con `https://ivanchux.github.io` y `CREATE_PASSWORD` (secreto) con una contraseña tuya.
+
+Comprueba que funciona abriendo `https://vinilos-sync.<tu-subdominio>.workers.dev/api/health`: debe responder `{"ok":true,"app":"inventario-vinilos",…}`.
+
+### Opción B · Servidor propio (Node o Docker / Coolify)
+
+El servidor está en [`server/server.js`](server/server.js): Node ≥ 18, **sin dependencias**, un solo archivo. También sirve la app.
+
+```bash
 CREATE_PASSWORD=una-clave node server/server.js      # http://localhost:8787
-# Con Docker
 docker build -f server/Dockerfile -t vinilos .
 docker run -d -p 8787:8787 -v vinilos-data:/data -e CREATE_PASSWORD=una-clave vinilos
 ```
 
-Si pones la dirección del servidor en [`js/config.js`](js/config.js), la app ya la trae rellenada.
-
-**En la app**: botón de la nube → «Es el primero» en un dispositivo (dirección + contraseña). Te da un **código** y un **enlace**: ábrelo en el otro dispositivo y listo. Si los dos ya tenían discos, se juntan y la app ofrece unir los repetidos.
+En Coolify: build pack **Dockerfile** con ruta `server/Dockerfile`, puerto **8787**, volumen persistente en **`/data`**, variables `CREATE_PASSWORD` y `ALLOWED_ORIGIN=https://ivanchux.github.io`, y un dominio con https.
 
 | Variable | Para qué |
 |---|---|
-| `PORT` | Puerto (8787) |
-| `DATA_DIR` | Carpeta de datos (`/data` en Docker) |
-| `CREATE_PASSWORD` | Contraseña para crear colecciones nuevas |
+| `CREATE_PASSWORD` | Contraseña para crear colecciones nuevas (así nadie más usa tu servidor) |
 | `ALLOWED_ORIGIN` | Orígenes permitidos, separados por comas |
-| `STATIC_DIR` | Si se indica, sirve también la app |
-| `MAX_VAULT_MB` / `MAX_BLOB_MB` | Límites de tamaño (8 y 4 MB) |
+| `PORT`, `DATA_DIR`, `STATIC_DIR` | Solo servidor propio: puerto, carpeta de datos y carpeta de la app |
+| `MAX_VAULT_MB` / `MAX_BLOB_MB` | Solo servidor propio: límites de tamaño (8 y 4 MB) |
+
+### Conectar los dispositivos
+
+Si pones la dirección del servidor en [`js/config.js`](js/config.js), la app ya la trae rellenada.
+
+En la app, botón de la nube:
+- **Primer dispositivo**: «Es el primero» → dirección + contraseña. Te da un **código** y un **enlace**.
+- **Los demás**: «Ya tengo un código» y pega el código. En iPhone, usa el código desde la app instalada: el enlace se abriría en Safari, que guarda los datos aparte.
+
+Si los dos dispositivos ya tenían discos, se juntan y la app ofrece unir los repetidos.
 
 ## Stack y estructura
 
@@ -120,7 +144,7 @@ HTML, CSS y JavaScript con módulos nativos, sin frameworks ni paso de compilaci
 │   ├── sync.js           sincronización cifrada y fusión
 │   ├── portadas.js       compresión de fotos y búsqueda en MusicBrainz
 │   └── ui.js, iconos.js, util.js, config.js
-├── server/               servidor de sincronización + Dockerfile
+├── server/               servidor de sincronización (Node + Dockerfile, y Cloudflare en server/cloudflare/)
 ├── tests/e2e.py          pruebas con navegador real
 └── service-worker.js     funcionamiento sin conexión
 ```
