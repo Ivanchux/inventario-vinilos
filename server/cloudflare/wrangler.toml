@@ -7,8 +7,8 @@ compatibility_date = "2024-11-01"
 
 [[kv_namespaces]]
 binding = "VINILOS"
-# Pega aquí el id que te da: npx wrangler kv namespace create VINILOS
-id = "PEGA_AQUI_EL_ID"
+# Espacio KV creado con: npx wrangler kv namespace create VINILOS
+id = "95e1d3295b6f4848accfb57a9a87de16"
 
 [vars]
 ALLOWED_ORIGIN = "https://ivanchux.github.io"
