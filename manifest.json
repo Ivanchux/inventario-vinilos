@@ -1,14 +1,20 @@
 {
+  "id": "./",
   "name": "Inventario de Vinilos",
   "short_name": "Vinilos",
+  "description": "Tu colección de vinilos en estanterías, con portadas, estadísticas y sincronización entre dispositivos.",
+  "lang": "es",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#150e09",
-  "theme_color": "#150e09",
-  "orientation": "portrait",
+  "background_color": "#13100d",
+  "theme_color": "#13100d",
   "icons": [
-    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
-    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Añadir disco", "url": "./index.html#anadir", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
   ]
 }

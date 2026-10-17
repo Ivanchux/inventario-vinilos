@@ -1,8 +1,9 @@
-name: Deploy a GitHub Pages
+name: Pruebas y despliegue
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -11,24 +12,46 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: pages-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  pruebas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pruebas del servidor
+        run: node --test server/server.test.js
+      - name: Instalar navegador de pruebas
+        run: |
+          pip install playwright==1.48.0
+          python -m playwright install --with-deps chromium
+      - name: Pruebas de la app en el navegador
+        run: python tests/e2e.py
+
+  desplegar:
+    # Solo se publica si todas las pruebas pasan
+    needs: pruebas
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Configurar Pages
-        uses: actions/configure-pages@v5
-      - name: Subir artefacto
-        uses: actions/upload-pages-artifact@v3
+      - uses: actions/checkout@v4
+      - name: Preparar los archivos de la web
+        run: |
+          mkdir _site
+          cp -r index.html manifest.json service-worker.js css js icons _site/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
-      - name: Desplegar en GitHub Pages
-        id: deployment
+          path: _site
+      - id: deployment
         uses: actions/deploy-pages@v4
